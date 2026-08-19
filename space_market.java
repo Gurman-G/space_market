@@ -1,31 +1,47 @@
 import java.util.*;
 
-class player {String name; double money; byte golod; double jajda; int rez; Map<String, Integer> inventory;
+class player {String name; double money; private byte golod; private double jajda; int rez; Map<String, Integer> inventory;
+    // конструктор класса player
     public player (String name, int rez, double money, byte golod, double jajda /*уровень жажды воды */) {
         this.name = name; 
+        setGolod(golod);
+        setJajda(jajda);
         this.money = money; 
-        this.golod = golod; 
-        this.jajda = jajda;
         this.rez = rez;
         this.inventory = new HashMap<>();}
-
+    // медот для вывода всех переменных объекта игрока     
     public String toString() {
         return "Ваше имя: " + name + " | У вас на балансе:  " + money + " | Ваши уровень голода: "
         + golod + " | Ваш уровень жажды: " + jajda;
     }  
-    
+    // гетеры для переменных private golod и jajda
+    public byte getGolod() {return this.golod;}
+    public double getJajda() {return this.jajda;}
+
+    // сеттеры для переменных private golod jajda
+    public void setGolod(byte golod) {
+        if (golod > 25) {this.golod = 25;}
+        else {this.golod = golod;}
+    }
+
+    public void setJajda(double jajda) {
+        if (jajda > 35) {this.jajda = 35;}
+        else {this.jajda = jajda;}
+    }
+    //метод для проверки уровня голода и жады, для вывода предупреждений 
     public void cheekStatus() {
         if (golod == 3 || golod == 2) {System.out.println("Ты проголодался, пора подкрепится");}
         if (golod == 1) {System.out.println("Ты голоден, надо сроно поесть ");}
-        if (golod < 1) {System.out.println("Ты умер от голода, игра окончена. Твой рейтинг: " + rez); return;}
+        if (golod < 1) {System.out.println("Ты умер от голода, игра окончена. Твой рейтинг: " + rez);}
         if (jajda == 7) {System.out.println("Ты хочешь пить, но это не критично");}
         if (jajda == 4) {System.out.println("Тебя мучает жажда, выпей воды");}
         if (jajda ==1) {System.out.println("Срочно выпей воды");}
-        if (jajda < 1) {System.out.println("Ты умер от жажды, игра окончена, твой рейтинг: " + rez); return;}
+        if (jajda < 1) {System.out.println("Ты умер от жажды, игра окончена, твой рейтинг: " + rez);}
     }
 }
 class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <String> seelGoods; List<String> buyGoods;
      Map<String, Double> buytMarket; Map<String, Double> seelMarket;
+     // конструктор родительского класса планет 
     public planet (String namePlanet, boolean kaf, boolean nal, boolean kor, 
         List <String> seelGoods, List<String> buyGoods, Map<String, Double> buytMarket, Map<String, Double> seelMarket) {
         this.namePlanet = namePlanet; 
@@ -37,22 +53,25 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
         this.buytMarket = buytMarket; 
         this.seelMarket = seelMarket;
     SeelGoods(); BuyGoods();}
+    // создание пустых методов в родительском классе для заполнения их переоприделения в класах наследников 
     public void SeelGoods() {}
     public void BuyGoods() {}
 
+    // изьавление от возвращения null
     public double getSeelMarket(String goodName) {
         return seelMarket.getOrDefault(goodName, 0.0);}
 
     public double getBuyMarket (String goodName) {
         return buytMarket.getOrDefault(goodName, 0.0);}  
-        
+    
+    // вывод определения на какой планете находиться игрок 
     public String toString() {
         return "Ты находишься на планете, " + namePlanet + " Сдесь " + (kaf ? " Атмосфера пригодна для жизни | " : 
         " Атмосфера не пригодна для жизни | ") + (nal ? " На данной планете есть нужный артефакт | " : 
         " На данной планете нет нужного артефакта | ") + (kor ? " На данной планете есть чудовища | " : 
         " На данной планете нет чудовищь");
     }  
-
+    // вывод списка товаров которые продает планета 
     public void showSeelGoods() {
         System.out.println("=== ТОВАРЫ НА ПРОДАЖУ (" + namePlanet + ") ===");
         for (String good : seelGoods) {
@@ -61,7 +80,7 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
             }
         }
     }
-
+    // вывод списка товаров которые покупает планета 
     public void showByuGoods() {
         System.out.println("=== ТОВАРЫ НА ПОКУПКУ (" + namePlanet + ") ===");
         for (String good : buyGoods) {
@@ -71,13 +90,16 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
         }
     }
 }
+    // класс зелмя наследование от общего класса планет 
     class Earch extends planet {byte civic;
+        // конструктор планеты земля
         public  Earch (String namePlanet, boolean kaf, boolean nal, boolean kor, byte civic,
              List <String> seelGoods, List<String> buyGoods, Map<String, Double> buytMarket, Map<String, Double> seelMarket) {
             super (namePlanet, kaf, nal, kor, seelGoods, buyGoods, buytMarket, seelMarket); 
             this.civic = civic;}
-            
-            @Override // продажа
+
+            // переопределение списка того что планета продает 
+            @Override
             public void SeelGoods() {
                 seelGoods.add("Clothes"); // одежда
                 seelGoods.add("Fangs"); // клыки
@@ -89,7 +111,8 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
                 seelGoods.add("Weapon"); // оружие
             }
 
-            @Override // покупка
+            // переопределение списка того что планета покупает 
+            @Override
             public void BuyGoods() {
                 buyGoods.add("Fangs"); // клыки
                 buyGoods.add("Food"); // еда
@@ -100,6 +123,7 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
                 buyGoods.add("Weapon"); // оружие
             }
 
+            // переопределния вывода текущей планеты на которой находится игрок
             @Override
             public String toString() {
                 return super.toString() + " | на планете есть " + civic + " разумная цивилизация";
@@ -112,7 +136,8 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
             super (namePlanet, kaf, nal, kor, seelGoods, buyGoods, buytMarket, seelMarket); 
             this.kocent = kocent;}
 
-            @Override // продажа
+            // переопределение списка того что планета продает
+            @Override
             public void SeelGoods() {
                 seelGoods.add("Clothes"); // одежда
                 seelGoods.add("Fangs"); // клыки
@@ -124,6 +149,7 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
                 seelGoods.add("Repellent"); // отпугиватель
             }
 
+            // переопределение списка того что планета покупает
             @Override // покупка
             public void BuyGoods() { 
                 buyGoods.add("Food"); // еда
@@ -132,6 +158,8 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
                 buyGoods.add("AdvancedSuit"); // продвинутый скафандр 
                 buyGoods.add("Weapon"); // оружие
             }
+
+            // переопределния вывода текущей планеты на которой находится игрок
             @Override
             public String toString() {
                 return super.toString() + " | вам повезло, концентрация кислорода в атмосфере планеты равна " 
@@ -144,8 +172,9 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
             List <String> seelGoods, List<String> buyGoods, Map<String, Double> buytMarket, Map<String, Double> seelMarket) {
             super (namePlanet, kaf, nal, kor, seelGoods, buyGoods, buytMarket, seelMarket); 
             this.kolvoYad = kolvoYad;}
-
-            @Override // продажа
+            
+            // переопределение списка того что планета продает
+            @Override
             public void SeelGoods() {
                 seelGoods.add("Fangs"); // клыки
                 seelGoods.add("Food"); // еда
@@ -155,6 +184,7 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
                 seelGoods.add("Artifact"); // артефакт
             }
 
+            // переопределение списка того что планета покупает
             @Override // покупка
             public void BuyGoods() { 
                 buyGoods.add("Fuel"); // топливо
@@ -162,17 +192,21 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
                 buyGoods.add("Weapon"); // оружие
                 buyGoods.add("Repellent"); // отпугиватель 
             }
-            
+
+            // переопределния вывода текущей планеты на которой находится игрок
             @Override
             public String toString() {
                 return super.toString() + " | К сожалению атмомфера планеты не пригодна дял жизни, здесь следует ходить в професиональном скафандре" + kolvoYad;
             }
     }
 
+// основа программы 
 public class space_market {
     public static void main (String[] agrs) {
+        // создание сканера 
         Scanner scan = new Scanner (System.in, "UTF-8");
         
+        // создание переменных товаров
         String eda = "Food"; // еда
         String woner = "Water"; // вода
         String Fuel = "Fuel"; // топливо (механика использования будет реализованна в обновлении)
@@ -188,7 +222,8 @@ public class space_market {
         // nal - наличие нужного артефакта 
         // kor - наличие чудовищь
 
-        Map<String, Double> SeelGoods = new HashMap<>(); // продажа со стороны рынка
+        // заполнение коллекции Map товарами и ценами продажи со стороны рынка 
+        Map<String, Double> SeelGoods = new HashMap<>();
         SeelGoods.put(eda, 24.99);
         SeelGoods.put(woner, 19.99);
         SeelGoods.put(Fuel, 39.99);
@@ -201,7 +236,8 @@ public class space_market {
         SeelGoods.put(oruj, 349.49);
         SeelGoods.put(col, 199.99);
 
-        Map<String, Double> BuyGoods = new HashMap<>(); // покупка со стороны рынка
+        // заполнение коллекции Map товарами и ценами покупки со стороны рынка 
+        Map<String, Double> BuyGoods = new HashMap<>(); 
         BuyGoods.put(eda, 12.99);
         BuyGoods.put(woner, 9.99);
         BuyGoods.put(Fuel, 19.99);
@@ -214,20 +250,23 @@ public class space_market {
         BuyGoods.put(oruj, 149.49);
         BuyGoods.put(col, 99.99);
 
-        String namePlanet = "Earch"; // создание объекта планеты змеля 
+        // создание объекта планеты змеля
+        String namePlanet = "Earch";  
         boolean kaf = true;
         boolean nal = false;
         boolean kor = false;
         byte civic = 1;
         Earch planetEarch = new Earch(namePlanet, kaf, nal, kor, civic, new ArrayList<>(), new ArrayList<>(), SeelGoods, BuyGoods);
 
-        namePlanet = "Mars"; // создание объекта планеты марс
+        // создание объекта планеты Марс
+        namePlanet = "Mars"; 
         kaf = false;
         nal = false;
         kor = false;
         double kocent = 0.15;
         Mars planetMars = new Mars(namePlanet, kaf, nal, kor, kocent, new ArrayList<>(), new ArrayList<>(), SeelGoods, BuyGoods);
 
+        // создание объекта планеты Титан
         namePlanet = "Titan";
         kaf = false;
         nal = true;
@@ -235,35 +274,48 @@ public class space_market {
         String kolvoYad = "Циановодород, Синиальная кислота, Метилцианид и т.д";
         Titan planetTitan = new Titan(namePlanet, kaf, nal, kor, kolvoYad, new ArrayList<>(), new ArrayList<>(), SeelGoods, BuyGoods);
 
+        // создания игрока и введение его в курс дела
         System.out.println("Добро подаловать в игру Space market, где можно путишествовать по планетам, покупать и продавать товары");
         System.out.println("Твоя главная цель, найти артефакт и привести его на землю");
         System.out.println();
         System.out.print("Введи имя своего персонажа: ");
 
         Map<String, Integer> inventory = new HashMap<>();
-        String PLANET = "beginning";
+        String PLANET = "beginning"; // переменная определения на какой планете игрок
         String name = scan.nextLine();
         double money = 100; 
         byte golod = 11; 
         double jajda = 16;
         int rez = 0; // счетчик для отслеживания рейтинга, чем меньше было действий для достижения цели тем ты крут
         player players = new player(name, rez, money, golod, jajda);
-        boolean life = true;
+        boolean life = true; // создание переменной определяющей жив игрок или нет
+
+        // начало цикла игры 
         while (true) {
-            if (players.golod == 0 || players.jajda == 0) {life = false;}
+            // проверка уровня голода и жажды
+            if (players.getGolod() <= 0 || players.getJajda() <= 0) {life = false;}
+            // проверка на то что игрок мертв
             if (!life) {
                 System.out.println();
                 System.out.println("Конец игры!"); 
                 System.out.println();
                 return;}
+
+            // создания переменной определяющей 
+            // на какой планете игрок для взаимодейтсия с рынком 
+            // только той планеты на которой игрок    
             planet currentPlanet = planetEarch;
+
+            // проверка на то что игра только началась 
             if (PLANET.equals("beginning")) {
                 System.out.println("Это начало игры");
                 System.out.println();
                 System.out.println(players);
                 System.out.println();
-                PLANET = "Earch"; System.out.println();
+                PLANET = "Earch"; System.out.println(); // переключение на планету Земля 
             }
+            
+            // проверка на то что игрок на Земле
             else if (PLANET.equals("Earch")) {
                 System.out.println(planetEarch);
                 System.out.println();
@@ -276,6 +328,8 @@ public class space_market {
                     System.out.println("Твой результат: " + players.rez);
                     return;}
                 }
+
+            // проверка на то что игрок на Марсе  
             else if (PLANET.equals("Mars")) {
                 System.out.println(planetMars);
                 System.out.println();
@@ -285,6 +339,8 @@ public class space_market {
                     System.out.println("Твой результат: " + players.rez); 
                     return;}
             }    
+
+            // проверка на то что игрок на Титане 
             else if (PLANET.equals("Titan")) {
                 System.out.println(planetTitan);
                 System.out.println();
@@ -309,36 +365,40 @@ public class space_market {
                     System.out.println("Твой результат: " + players.rez);
                 }
             }
+
+            // создания переменой для определения надобности выхода в основное меню
             boolean exit = false;
+
+            // создания переменной menu для switch на основе модуля вывода меню
             int menu = menu(scan);
             switch (menu) {
-                case 1:
-                    if (exit) {System.out.println();break;}
-                    int menuDev1 = dev1(scan, inventory, players, currentPlanet);
+                case 1: // пользователь выбрал пункт покупка-продажа
+                    if (exit) {System.out.println();break;} // определине статуса переменой выхода из switch в начало основного цикла while boolean exit снова сбрасывается 
+                    int menuDev1 = dev1(scan, inventory, players, currentPlanet); // выбор пользователя из меню модуля dev1
                     System.out.println();
                     switch (menuDev1) {
-                        case 1: pokupka(scan, players, inventory, currentPlanet); System.out.println(); break;
-                        case 2: prodaja(scan, players, inventory, currentPlanet); System.out.println(); break;
-                        case 3: Exit(scan); System.out.println();break;
+                        case 1: pokupka(scan, players, inventory, currentPlanet); System.out.println(); break; // покупка на рынке текущей планеты игрока 
+                        case 2: prodaja(scan, players, inventory, currentPlanet); System.out.println(); break; // продажа на рынке текущей планеты игрока
+                        case 3: Exit(scan); System.out.println();break; // вывод модуля выхода в основное меню
                         default: System.out.println("Вы выбрали не существущий пункт меню, повторите попытку"); System.out.println();break;       
                     } break;
-                case 2:   
-                    if (exit) {System.out.println();break;}
-                    int menuDev2 = dev2(scan, inventory, players);
+                case 2: // пользователь выбрал пункт поесть-попить
+                    if (exit) {System.out.println();break;} // определине статуса переменой выхода из switch в начало основного цикла while boolean exit снова сбрасывается 
+                    int menuDev2 = dev2(scan, inventory, players); // выбор пользователя из меню модуля dev2
                     System.out.println();
                     switch(menuDev2) {
-                        case 1: poest(scan, inventory, players); System.out.println(); break;
-                        case 2: popit(scan, inventory, players); System.out.println(); break;
-                        case 3: Exit(scan); System.out.println(); break;    
+                        case 1: poest(scan, inventory, players); System.out.println(); break; // игрок есть
+                        case 2: popit(scan, inventory, players); System.out.println(); break; // игрок пьет 
+                        case 3: Exit(scan); System.out.println(); break; // вывод модуля выхода в основное меню
                         default: System.out.println("Вы выбрали не существущий пункт меню, повторите попытку"); System.out.println();break;   
                     } break;
-                case 3:  
-                    if (exit) {System.out.println();break;}  
-                    PLANET = perelet(scan, players, currentPlanet); System.out.println(); break;
+                case 3:  // пользователь выбрал пунтк перелета на другую планету
+                    if (exit) {System.out.println();break;}  // вывод модуля выхода в основное меню
+                    PLANET = perelet(scan, players, currentPlanet); System.out.println(); break; // вывод выбора планеты перелета
             }
         }
     }
-    // МЕТОД CASE 1 ДЛЯ ОСНОВНОГО МЕНЮ 
+    // МЕТОД dev1 CASE 1 ДЛЯ ОСНОВНОГО МЕНЮ 
     public static int dev1 (Scanner scan, Map<String, Integer> inventory, player players, planet currPlanet) {
         if (inventory.isEmpty()) {System.out.println("Инвентарь пуст"); System.out.println();}
         System.out.println(players);
@@ -418,7 +478,8 @@ public class space_market {
         }
 
         inventory.put("Food", kolvoEDA - EMEda);
-        players.golod += EMEda * 2;
+        int newGolod = players.getGolod() + (EMEda * 2);
+        players.setGolod((byte) newGolod);
         System.out.println("Готово, ты поел"); 
         System.out.println();
         players.cheekStatus();
@@ -446,7 +507,8 @@ public class space_market {
         }
 
         inventory.put("Water", kolvoEDA - EMEda);
-        players.jajda += EMEda * 3;
+        double newJajda = players.getJajda() + (EMEda * 3);
+        players.setJajda(newJajda);
         System.out.println("Готово, ты попил");
         System.out.println();
         players.cheekStatus();
@@ -484,8 +546,10 @@ public class space_market {
         // Добавляем в инвентарь
         inventory.put(tovarB, inventory.getOrDefault(tovarB, 0) + shotB);
         players.money -= totalCost;
-        players.golod--;
-        players.jajda -= 1.5;
+        int newGolod = players.getGolod() - 1;
+        players.setGolod((byte) newGolod);
+        double newJajda = players.getJajda() - 1.5;
+        players.setJajda(newJajda);
         players.rez++;
 
         System.out.println("Куплено: " + tovarB + " x" + shotB + " за " + totalCost + "$ на планете " + currentPlanet.namePlanet);
@@ -523,8 +587,10 @@ public class space_market {
         double totalIncome = price * shotS;
 
         players.money += totalIncome;
-        players.golod--;
-        players.jajda-= 1.5;
+        int newGolod = players.getGolod() - 1;
+        players.setGolod((byte) newGolod);
+        double newJajda = players.getJajda() - 1.5;
+        players.setJajda(newJajda);
         players.rez++;
 
         int newQty = currentQty - shotS;
@@ -564,8 +630,10 @@ public class space_market {
             String otvet = scan.nextLine();
             if (otvet.equalsIgnoreCase("Yes")) {
                 players.rez++;
-                players.golod--;
-                players.jajda -= 1.5;
+                int newGolod = players.getGolod() - 1;
+                players.setGolod((byte) newGolod);
+                double newJajda = players.getJajda() - 1.5;
+                players.setJajda(newJajda);
                 players.cheekStatus(); 
                 System.out.println(); 
                 return "Mars";
@@ -580,6 +648,7 @@ public class space_market {
             return "Earch";
             }
         }
+        
         if (currentPlanet.namePlanet.equals("Mars")) {
             System.out.println("Сочувствую что ты не нашел артефакт на Марсе, попытай удачу на Титане.");
             System.out.println("Но помни, там тебе нужен продвинутый скафандр с отдельными для них балонами с кислоролом.");
@@ -595,16 +664,20 @@ public class space_market {
             String otvet = scan.nextLine();
             if (otvet.equalsIgnoreCase("Titan")) {
                 players.rez++;
-                players.golod--;
-                players.jajda -= 1.5;
+                int newGolod = players.getGolod() - 1;
+                players.setGolod((byte) newGolod);
+                double newJajda = players.getJajda() - 1.5;
+                players.setJajda(newJajda);
                 players.cheekStatus(); 
                 System.out.println();
                 return "Titan";
             }
             else if (otvet.equalsIgnoreCase("Earch")) {
                 players.rez++;
-                players.golod--;
-                players.jajda -= 1.5;
+                int newGolod = players.getGolod() - 1;
+                players.setGolod((byte) newGolod);
+                double newJajda = players.getJajda() - 1.5;
+                players.setJajda(newJajda);
                 players.cheekStatus(); 
                 System.out.println();
                 return "Earch"; 
@@ -620,7 +693,6 @@ public class space_market {
             }
         }    
 
-
         if (currentPlanet.namePlanet.equals("Titan")) {
             System.out.println("Поздравляю ты побывал на последней планете и выжил");
             System.out.println("Убедись что ты положил в инвентарь артефакт и полетели в обратный путь");
@@ -635,8 +707,10 @@ public class space_market {
             String otvet = scan.nextLine();
             if (otvet.equalsIgnoreCase("Yes")) {
                 players.rez++;
-                players.golod--;
-                players.jajda -= 1.5;
+                int newGolod = players.getGolod() - 1;
+                players.setGolod((byte) newGolod);
+                double newJajda = players.getJajda() - 1.5;
+                players.setJajda(newJajda);
                 players.cheekStatus();  
                 System.out.println();
                 return "Mars";
