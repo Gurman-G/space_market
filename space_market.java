@@ -1,7 +1,7 @@
 import java.util.*;
 
 class player {String name; double money; private byte golod; private double jajda; int rez; Map<String, Integer> inventory;
-    // конструктор класса player
+    // конструктор класса player (игрок)
     public player (String name, int rez, double money, byte golod, double jajda /*уровень жажды воды */) {
         this.name = name; 
         setGolod(golod);
@@ -9,7 +9,7 @@ class player {String name; double money; private byte golod; private double jajd
         this.money = money; 
         this.rez = rez;
         this.inventory = new HashMap<>();}
-    // медот для вывода всех переменных объекта игрока     
+    // метод для вывода всех переменных объекта игрока     
     public String toString() {
         return "Ваше имя: " + name + " | У вас на балансе:  " + money + " | Ваши уровень голода: "
         + golod + " | Ваш уровень жажды: " + jajda;
@@ -39,9 +39,16 @@ class player {String name; double money; private byte golod; private double jajd
         if (jajda < 1) {System.out.println("Ты умер от жажды, игра окончена, твой рейтинг: " + rez);}
     }
 }
-class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <String> seelGoods; List<String> buyGoods;
+
+// создание интерфейса, обязательных методов для переопределния наследниками абстрактного класса
+interface Tradeable {
+void SeelGoods(); // метод планета продает
+void BuyGoods(); // мтод планета покупает
+}
+// создание абстрактного родительского класса для наследников 
+abstract class planet implements Tradeable {String namePlanet; boolean kaf; boolean nal; boolean kor; List <String> seelGoods; List<String> buyGoods;
      Map<String, Double> buytMarket; Map<String, Double> seelMarket;
-     // конструктор родительского класса планет 
+     // конструктор родительского класса планет (абстрактный )
     public planet (String namePlanet, boolean kaf, boolean nal, boolean kor, 
         List <String> seelGoods, List<String> buyGoods, Map<String, Double> buytMarket, Map<String, Double> seelMarket) {
         this.namePlanet = namePlanet; 
@@ -52,11 +59,9 @@ class planet {String namePlanet; boolean kaf; boolean nal; boolean kor; List <St
         this.buyGoods = new ArrayList<>(); 
         this.buytMarket = buytMarket; 
         this.seelMarket = seelMarket;
-    SeelGoods(); BuyGoods();}
-    // создание пустых методов в родительском классе для заполнения их переоприделения в класах наследников 
-    public void SeelGoods() {}
-    public void BuyGoods() {}
-
+        SeelGoods(); BuyGoods();;
+    }
+    
     // изьавление от возвращения null
     public double getSeelMarket(String goodName) {
         return seelMarket.getOrDefault(goodName, 0.0);}
@@ -400,49 +405,47 @@ public class space_market {
     }
     // МЕТОД dev1 CASE 1 ДЛЯ ОСНОВНОГО МЕНЮ 
     public static int dev1 (Scanner scan, Map<String, Integer> inventory, player players, planet currPlanet) {
-        if (inventory.isEmpty()) {System.out.println("Инвентарь пуст"); System.out.println();}
-        System.out.println(players);
+        if (inventory.isEmpty()) {System.out.println("Инвентарь пуст"); System.out.println();} // проверка пустоты инвенторя
+        System.out.println(players); // вывод метода toString
         System.out.println();
-        players.cheekStatus();
+        players.cheekStatus(); // метод проверки статуса голода и жаджды
         System.out.println();
-        System.out.println("=== Рынок планеты - " + currPlanet.namePlanet + " ===");
-        System.out.println();
-
-        currPlanet.showSeelGoods(); 
-
+        System.out.println("=== Рынок планеты - " + currPlanet.namePlanet + " ==="); // объявления рынка планеты 
         System.out.println();
 
-        currPlanet.showByuGoods();
+        currPlanet.showSeelGoods(); // вывод цен и товаров продажи со стороны планеты на которой игрок сейчас
+        System.out.println();
+        currPlanet.showByuGoods(); // вывод цен и товаров покупки со стороны планеты на которой игрок сейчас
 
-        //currPlanet.showByuGoods();
+        // вывод меню
         System.out.println();
         System.out.println("1. Купить");
         System.out.println("2. Продать");
         System.out.println("3. Выйти в основное меню");
         System.out.print("Выберите действие: ");
-        int ded = scan.nextInt();
+        int ded = scan.nextInt(); // получение выбора пунта меню от пользователя 
         scan.nextLine();
         System.out.println();
-        if (ded >= 1 && ded <= 3) {return ded;} 
-        else {System.out.println("Не верный пункт меню!"); return 0;}
+        if (ded >= 1 && ded <= 3) {return ded;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+        else {System.out.println("Не верный пункт меню!"); return 0;} // срабатываение проверка на не существующий пункт меню от пользователя  
     }
     // МЕТОД CASE 2 ДЛЯ ОСНОВНОГО МЕНЮ 
     public static int dev2 (Scanner scan, Map<String, Integer> inventory, player players) {
-        if (inventory.isEmpty()) {System.out.println("Инвентарь пуст"); System.out.println();}
+        if (inventory.isEmpty()) {System.out.println("Инвентарь пуст"); System.out.println();} // проверка инвентаря на пустоту
         System.out.println();
-        System.out.println(players);
+        System.out.println(players); // вывод метода toString
         System.out.println();
-        players.cheekStatus();  
+        players.cheekStatus(); // проверка статуса голода и жажды
         System.out.println();   
-        System.out.println("=== ВЫБЕРИТЕ ДЕЙСТВИЕ ===");
+        System.out.println("=== ВЫБЕРИТЕ ДЕЙСТВИЕ ==="); // вывод меню
         System.out.println("1. Поесть");
         System.out.println("2. Попить");
         System.out.println("3. Выйти в основное меню"); 
         System.out.print("Впишите свой выбор: ");
-        int ded = scan.nextInt();
+        int ded = scan.nextInt(); // создание переменной выбора пункта меню от пользователя 
         scan.nextLine();
-        if (ded >= 1 && ded <= 3) {return ded;}
-        else {System.out.println("Не верный пункт меню!"); return 0;}
+        if (ded >= 1 && ded <= 3) {return ded;}// проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+        else {System.out.println("Не верный пункт меню!"); return 0;} // срабатываение проверка на не существующий пункт меню от пользователя  
     }
     // МЕТОД ОСНОВНОГО МЕНЮ
     public static int menu (Scanner scan) {
@@ -453,76 +456,77 @@ public class space_market {
         System.out.println("3. В путь");
         System.out.println();
         System.out.print("Выберите пункт основного меню: ");
-        byte vibor = scan.nextByte();
+        byte vibor = scan.nextByte(); // создание переменной выбора пункта меню от пользователя
         scan.nextLine();
-        if (vibor >= 1 && vibor <= 3) {return vibor;}
-        else {System.out.println("Не верный пункт меню!");return 0;}
+        if (vibor >= 1 && vibor <= 3) {return vibor;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+        else {System.out.println("Не верный пункт меню!");return 0;} // срабатываение проверка на не существующий пункт меню от пользователя  
     }
     // МЕТОД ЧТОБЫ ПОЕСТЬ
     public static void poest(Scanner scan, Map<String, Integer> inventory, player players) {
         System.out.println();
-        players.cheekStatus();System.out.println();
-        if (!inventory.containsKey("Food")) {
+        players.cheekStatus();System.out.println(); // проверка на уровень голода и жажды
+        // провека на наличие еды в инвентаре 
+        if (!inventory.containsKey("Food")) {// провека на отсутствие еды в инвентаре 
         System.out.println("В инвентаре нет еды!");System.out.println(); return;}
         System.out.println("Одна единица еды дает +2 к шкале");
-        int kolvoEDA = inventory.get("Food");
+        int kolvoEDA = inventory.get("Food"); // создание переенной и прививание ей колличество еды в инвентаре
         System.out.print("У тебя в инвентаре сейчас: " + kolvoEDA + " единиц еды, сколько ты хочешь израсходовать?: ");
-        int EMEda = scan.nextInt();
-        if (EMEda > kolvoEDA) {
+        int EMEda = scan.nextInt(); // получение данных от пользователя в каком количестве еды он хочет поесть
+        if (EMEda > kolvoEDA) { // сравнение что колличество которое хочет съесть игрок не привышает колличество которо есть в инвентаре 
             System.out.println();
             System.out.println("Еще раз, у тебя только " + kolvoEDA + " еды ");
             System.out.println("А ты хочешь съесть больше чем у тебя есть, наглый жулик");
             System.out.println("Жулик, не жульничей, раз ты ввел больше чем у тебя есть, то съешь все свои запасы");
             System.out.println();
-            EMEda = kolvoEDA;
+            EMEda = kolvoEDA; // в случае если колличество в инвентаре меньше желаемого, то игрок съест максимум из того что есть
         }
 
-        inventory.put("Food", kolvoEDA - EMEda);
-        int newGolod = players.getGolod() + (EMEda * 2);
-        players.setGolod((byte) newGolod);
+        inventory.put("Food", kolvoEDA - EMEda); // удаление из инвентаря колличество еды которое будет съедено
+        int newGolod = players.getGolod() + (EMEda * 2); // прибавление к шкале голода +2 пункта за каждую съеденную единцу еды 
+        players.setGolod((byte) newGolod); // проверка Сеттера максимального лимита шкалы голода 
         System.out.println("Готово, ты поел"); 
         System.out.println();
-        players.cheekStatus();
+        players.cheekStatus(); // вызов метода проверки статуса голода и жажды
         System.out.println();
     }
     // МЕТОД ЧТОБЫ ПОПИТЬ
     public static void popit(Scanner scan, Map<String, Integer> inventory, player players) {
         System.out.println();
-        players.cheekStatus();
+        players.cheekStatus(); // вызов метода проверки статуса голода и жажды
         System.out.println();
-        if (!inventory.containsKey("Water")) {
+        if (!inventory.containsKey("Water")) { // проверка на отсутствие воды в инвентаре 
         System.out.println("В инвентаре нет воды!"); System.out.println();return;}
         System.out.println("Одна единица воды дает +3 к шкале");
-        int kolvoEDA = inventory.get("Water");
+        int kolvoEDA = inventory.get("Water"); // прививание переменной колличество воды в инвентаре 
         System.out.print("У тебя в инвентаре сейчас: " + kolvoEDA + " единиц воды, сколько ты хочешь израсходовать?: ");
-        int EMEda = scan.nextInt();
-        if (EMEda > kolvoEDA) {
+        int EMEda = scan.nextInt(); // получение от пользователя данных какое колличество единиц воды он хочет выпить
+        if (EMEda > kolvoEDA) { // сравнение что колличество которое хочет съесть игрок не привышает колличество которо есть в инвентаре 
             System.out.println();
             System.out.println("Еще раз, у тебя только " + kolvoEDA + " воды ");
             System.out.println("А ты хочешь випить больше чем у тебя есть, наглый жулик");
             System.out.println("Жулик, не жульничей, раз ты ввел больше чем у тебя есть, то выпьешь все свои запасы");
             System.out.println();
 
-            EMEda = kolvoEDA;
+            EMEda = kolvoEDA; // в слачае если колличество в инвентаре меньше желаемого, игрок выпьет максимум из того что есть.
         }
 
-        inventory.put("Water", kolvoEDA - EMEda);
-        double newJajda = players.getJajda() + (EMEda * 3);
-        players.setJajda(newJajda);
+        inventory.put("Water", kolvoEDA - EMEda); // после питья вычитание колличество единиц воды из инвенторя
+        double newJajda = players.getJajda() + (EMEda * 3); // прибовление к шкале жажды +3 за каждую выпитую единицу воды
+        players.setJajda(newJajda); // проверка Сеттера максимального лимита шкалы жажды
         System.out.println("Готово, ты попил");
         System.out.println();
-        players.cheekStatus();
+        players.cheekStatus(); // вызов метода проверки статуса голода и жажды
         System.out.println();
     }
     // МЕТОД ДЛЯ ПОКУПКИ
     public static void pokupka(Scanner scan, player players, Map<String, Integer> inventory, planet currentPlanet) {
-        // Используем рынок переданной планеты
-        currentPlanet.showSeelGoods();
+    
+        currentPlanet.showSeelGoods(); // вывпод списка товаров и цен которые продает текущая планета 
      
         System.out.print("Введите название товара, которое хотите купить: ");
-        String tovarB = scan.nextLine();
+        String tovarB = scan.nextLine(); // получение от пользователя название товара который он хочет купить 
         System.out.print("Введите количество: ");
-        int shotB = scan.nextInt();
+        int shotB = scan.nextInt(); // получение от пользователя колличество выбранного товара который он хочет купить
         scan.nextLine();
         System.out.println();
         System.out.println("Вы ввели: " + tovarB);
@@ -534,122 +538,122 @@ public class space_market {
             System.out.println("На планете " + currentPlanet.namePlanet + " нет такого товара!"); System.out.println();
             return;
         }
-
+        // по текущей планете нахождения игрока берем из списка цену на выбранный игроком товар и прививаем ее к переменной price
         double price = currentPlanet.seelMarket.get(tovarB);
-        double totalCost = price * shotB;
+        double totalCost = price * shotB; // создаем переменную для получение полной стоимости покупки
 
-        if (players.money < totalCost) {
+        if (players.money < totalCost) { // проверка на наличие у игрока нужного колличества денег для совершенния данной покупки 
             System.out.println("Недостаточно денег! Нужно: " + totalCost + "$"); System.out.println();
-            return;
+            return; // если не достаточно то выход из программы и возврат в основное меню
         }
 
-        // Добавляем в инвентарь
+        // денег, хватает, добавляем товар и его колличество в инвентарь
         inventory.put(tovarB, inventory.getOrDefault(tovarB, 0) + shotB);
-        players.money -= totalCost;
-        int newGolod = players.getGolod() - 1;
+        players.money -= totalCost; // вычитаем колличество потраченных денег из кармана игрока
+        int newGolod = players.getGolod() - 1; // уменшаем шкалу голода на 1 пункт
         players.setGolod((byte) newGolod);
-        double newJajda = players.getJajda() - 1.5;
+        double newJajda = players.getJajda() - 1.5; // уменшаем шкалу жажды на один пункт
         players.setJajda(newJajda);
-        players.rez++;
+        players.rez++; // даем прибавку в рейтинге +1 за совершенное действие для достижения цели
 
         System.out.println("Куплено: " + tovarB + " x" + shotB + " за " + totalCost + "$ на планете " + currentPlanet.namePlanet);
         players.cheekStatus();
-        System.out.println(players);
+        System.out.println(players); // вывода метода toString 
         System.out.println();
     }
     // МЕТОД ДЛЯ ПРОДАЖИ
     public static void prodaja(Scanner scan, player players, Map<String, Integer> inventory, planet currentPlanet) {
-        currentPlanet.showByuGoods();
+        currentPlanet.showByuGoods(); // вывод рырка товаров и цен которые планета хочет купить
     
         System.out.print("Введите название товара, который хотите продать: ");
-        String tovarS = scan.nextLine();
+        String tovarS = scan.nextLine(); // получение название товара от пользователя который он хочет продать 
         System.out.print("Введите количество: ");
-        int shotS = scan.nextInt();
+        int shotS = scan.nextInt(); // получение колличества которое он хочет продать
         scan.nextLine();
 
-        if (!inventory.containsKey(tovarS)) {
+        if (!inventory.containsKey(tovarS)) { // проверка на наличе данного товара в инвентаре 
             System.out.println("В твоем инвентаре нет такого товара!"); System.out.println();
-            return;
+            return; // в случае если нет, то выход из программы в главное меню
         }
 
-        int currentQty = inventory.get(tovarS);
-        if (currentQty < shotS) {
+        int currentQty = inventory.get(tovarS); // прививание к переменной колличество товара на продажу которое есть в инвентаре 
+        if (currentQty < shotS) { // сравнение хватит ли на продажу того что есть 
             System.out.println("У тебя только " + currentQty + " шт. " + tovarS); System.out.println();
-            return;
+            return; // в случае если не хватает, вывод сообщения в консоль и выход в основное меню
         }
 
-        if (!currentPlanet.buyGoods.contains(tovarS)) {
+        if (!currentPlanet.buyGoods.contains(tovarS)) { // проверка на то что введенный пользователем товар купят на рынке текузей планеты 
             System.out.println("На планете " + currentPlanet.namePlanet + " не принимают этот товар!"); System.out.println();
-            return;
+            return; // в случае если нет то выход в основное меню
         }
 
-        double price = currentPlanet.buytMarket.get(tovarS);
-        double totalIncome = price * shotS;
+        double price = currentPlanet.buytMarket.get(tovarS); // создание перемнной price и привывание ей цену выбранного товара на продажу
+        double totalIncome = price * shotS; // вывод общей суммы дохода, которую получит игрок продав данный товар в данном колличестве
 
-        players.money += totalIncome;
-        int newGolod = players.getGolod() - 1;
+        players.money += totalIncome; // прибавка к деньгам игрока суммы дохода с продажи 
+        int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
         players.setGolod((byte) newGolod);
-        double newJajda = players.getJajda() - 1.5;
+        double newJajda = players.getJajda() - 1.5; // уменшение уровня жажды на 1.5 пункта за совершенное действие
         players.setJajda(newJajda);
-        players.rez++;
+        players.rez++; // увеличение в рейтинге на 1 пункт за совершонное действие 
 
-        int newQty = currentQty - shotS;
+        int newQty = currentQty - shotS; // проверка на то что игрок продал все колличество выбранного товара 
         if (newQty == 0) {
-            inventory.remove(tovarS);
+            inventory.remove(tovarS); // если да то удаление самого товара из инвентаря
         } else {
-            inventory.put(tovarS, newQty);
+            inventory.put(tovarS, newQty); // если нет то обновление колличества товара 
         }
 
         System.out.println("Продано: " + tovarS + " x" + shotS + " за " + totalIncome + "$ на планете " + currentPlanet.namePlanet);
-        players.cheekStatus();
-        System.out.println(players);
+        players.cheekStatus(); // выхов метода проверки уровня голода и жажды 
+        System.out.println(players); //вызов метода toString
         System.out.println();
     }
     // МЕТОД ДЛЯ ВЫХОДА В ОСНОВНОЕ МЕНЮ
     public static boolean Exit(Scanner scan) {
-
+        // меню для выхода
         System.out.println("Вы точно хотите выйти в основное меню? ");
         System.out.println("Yes");
         System.out.println("No");
         System.out.print("Введите свой ответ: ");
-        String otvet = scan.nextLine();
-        if(otvet.equalsIgnoreCase("Yes")) {return true;} 
-        else {return false;}
+        String otvet = scan.nextLine(); // получение выбора пунта меню от пользователя
+        if(otvet.equalsIgnoreCase("Yes")) {return true;} // в случае положительного выбора, присвоение к изначальному boolean exit = false значение true
+        else {return false;} // в ином случае остаеться false
     }
     // ПЕРЕЛЕТ НА ДРУГУЮ ПЛАНЕТУ
     public static String perelet (Scanner scan, player players, planet currentPlanet) {
-        players.cheekStatus();
+        players.cheekStatus(); // вызов метода проверки уровня голода и жажды 
         System.out.println();
-        if (currentPlanet.namePlanet.equals("Earch")) {
+        if (currentPlanet.namePlanet.equals("Earch")) { // проверка того что текущая планета нахождения игрока это земля
             System.out.println("Для перелета вам доступна только планета Марс, убедитесь что у вас есть в инвентаре скафандр с фильтрами иначе вам не выжить");
-            if (players.inventory.isEmpty()) {
+            if (players.inventory.isEmpty()) { // уведомление в случае если инвентарь игрока пуст
                 System.out.println("Инвентарь пуст!");
                 System.out.println();
             } else {System.out.println(players.inventory); System.out.println();}
             System.out.print("Если согласен перелететь напиши 'Yes', если хотите выйти в основное меню, напишите 'Exit': ");
-            String otvet = scan.nextLine();
-            if (otvet.equalsIgnoreCase("Yes")) {
-                players.rez++;
-                int newGolod = players.getGolod() - 1;
+            String otvet = scan.nextLine(); // получение ответа от пользвателя, на согласие или отказ от перелета на ближайшую планету Марс
+            if (otvet.equalsIgnoreCase("Yes")) { // при положительном ответе 
+                players.rez++; // увеличение рейтинга за совершенное действие на 1 пункт
+                int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенного действие
                 players.setGolod((byte) newGolod);
-                double newJajda = players.getJajda() - 1.5;
+                double newJajda = players.getJajda() - 1.5; // уменшение уровня голода на 1.5 пункт за совершенного действие
                 players.setJajda(newJajda);
-                players.cheekStatus(); 
+                players.cheekStatus(); // проверка уровня голода и жажды 
                 System.out.println(); 
-                return "Mars";
+                return "Mars"; // сделать текющую планету нахождения игрока Марс
             }
-            else if (otvet.equalsIgnoreCase("Exit")) {
+            else if (otvet.equalsIgnoreCase("Exit")) { // в случае если игрок выбрал выйти из пункта перелета
                 Exit(scan); 
                 System.out.println();
-                return "Earch";
+                return "Earch"; // текущая планета остаеться земля 
             }
-            else {System.out.println("Вы не подтвердили перелет"); 
+            else {System.out.println("Вы не подтвердили перелет"); // при других ответах оставить игрока на земле
             System.out.println();
             return "Earch";
             }
         }
         
-        if (currentPlanet.namePlanet.equals("Mars")) {
+        if (currentPlanet.namePlanet.equals("Mars")) { // проверка на то что текущая планета на которой находиться игрок это марс
             System.out.println("Сочувствую что ты не нашел артефакт на Марсе, попытай удачу на Титане.");
             System.out.println("Но помни, там тебе нужен продвинутый скафандр с отдельными для них балонами с кислоролом.");
             System.out.println("И не забудь запастись оружием, планета кишит монстрами.");
@@ -657,43 +661,43 @@ public class space_market {
             System.out.println("Если выбираешь планету Титан напиши 'Titan' если хочешь вернуться на Землю напиши 'Earch'");
             System.out.println("Если хочешь выйти в основное меню напиши 'Exit'");
             System.out.print("Итак, ваш выбор: ");
-            if (players.inventory.isEmpty()) {
+            if (players.inventory.isEmpty()) { // проверка на пустоту инвенторя
                 System.out.println("Инвентарь пуст!");
                 System.out.println();
             } else {System.out.println(players.inventory); System.out.println();}
-            String otvet = scan.nextLine();
-            if (otvet.equalsIgnoreCase("Titan")) {
-                players.rez++;
-                int newGolod = players.getGolod() - 1;
+            String otvet = scan.nextLine(); // получение ответа от пользователя для дальнейших действий 
+            if (otvet.equalsIgnoreCase("Titan")) { // вариант при выборе планте Титан для перелета 
+                players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие 
+                int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
                 players.setGolod((byte) newGolod);
-                double newJajda = players.getJajda() - 1.5;
+                double newJajda = players.getJajda() - 1.5; // уменшение уровня жажды на 1.5 пункта за совершенное действие 
                 players.setJajda(newJajda);
-                players.cheekStatus(); 
+                players.cheekStatus(); // вызов метода проверки уровня голода и жажды 
                 System.out.println();
-                return "Titan";
+                return "Titan"; // сделать текущую планету нахождения игрока Титан
             }
             else if (otvet.equalsIgnoreCase("Earch")) {
-                players.rez++;
-                int newGolod = players.getGolod() - 1;
+                players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие
+                int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
                 players.setGolod((byte) newGolod);
-                double newJajda = players.getJajda() - 1.5;
+                double newJajda = players.getJajda() - 1.5; // уменшение уровня жажды на 1.5 пункта за совершенное действие 
                 players.setJajda(newJajda);
-                players.cheekStatus(); 
+                players.cheekStatus(); // вызов метода проверки уровня голода и жажды
                 System.out.println();
-                return "Earch"; 
+                return "Earch"; // сделать текущую планету нахождения игрока Земля
             }
-            else if (otvet.equalsIgnoreCase("Exit")) {
+            else if (otvet.equalsIgnoreCase("Exit")) { // игрок выбрал виход
                 Exit(scan); 
                 System.out.println();
-                return "Mars";
+                return "Mars"; // остаться на марсе в случае выбора выхода из раздела перелет
             } 
             else {System.out.println("Вы не подтвердили перелет"); 
             System.out.println();
-            return "Mars";
+            return "Mars"; // остатья на марсе в случае получения не известного ответа
             }
         }    
 
-        if (currentPlanet.namePlanet.equals("Titan")) {
+        if (currentPlanet.namePlanet.equals("Titan")) { // в случае если игрок находиться на Титане 
             System.out.println("Поздравляю ты побывал на последней планете и выжил");
             System.out.println("Убедись что ты положил в инвентарь артефакт и полетели в обратный путь");
             if (players.inventory.isEmpty()) {
@@ -706,26 +710,26 @@ public class space_market {
             System.out.print("Итак, ващ выбор: ");
             String otvet = scan.nextLine();
             if (otvet.equalsIgnoreCase("Yes")) {
-                players.rez++;
-                int newGolod = players.getGolod() - 1;
+                players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие
+                int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
                 players.setGolod((byte) newGolod);
-                double newJajda = players.getJajda() - 1.5;
+                double newJajda = players.getJajda() - 1.5;  // уменшение уровня жажды на 1.5 пункта за совершенное действие 
                 players.setJajda(newJajda);
-                players.cheekStatus();  
+                players.cheekStatus(); // вызов метода проверки уровня голода и жажды 
                 System.out.println();
-                return "Mars";
+                return "Mars"; // перелет на марс в случае выбора марса 
             }
-            else if (otvet.equalsIgnoreCase("Exit")) {
+            else if (otvet.equalsIgnoreCase("Exit")) { // выход в случае выбора выхд 
                 Exit(scan);
                 System.out.println();
-                return "Titan";} 
+                return "Titan";} // остаться на Титане в случае выбора выход 
             else {System.out.println("Вы не подтвердили перелет"); 
             System.out.println();
-            return "Titan";
+            return "Titan"; // остатся на Титане в случае получения не известного ответа 
             }
         }    
         System.out.println();
-        return currentPlanet.namePlanet;
+        return currentPlanet.namePlanet; // если не один из операторов не сработал то оставить игрока на текущей планете 
     }
 }
 
