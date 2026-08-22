@@ -284,17 +284,36 @@ public class space_market {
         System.out.println("Твоя главная цель, найти артефакт и привести его на землю");
         System.out.println();
         System.out.print("Введи имя своего персонажа: ");
+        String nameScan = null;
 
-        Map<String, Integer> inventory = new HashMap<>();
+        while (true) {// создаем цикл для исключения 
+            try {
+            System.out.print("Введи имя своего персонажа: ");
+            nameScan = scan.nextLine();
+            if (nameScan.trim().isEmpty()) {
+                System.out.println("Имя не может быть пустым!");
+                continue; // возвращаемся к началу цикла если ввод пустой 
+            }
+            break; // ← ВЫХОДИМ ИЗ ЦИКЛА, если всё ок
+        } catch (Exception error) {
+            System.out.println();
+            System.out.println("Ошибка: вы ввели не имя");
+            System.out.println("Повторите попытку!");
+            scan.nextLine();
+            System.out.println();
+            }
+        }
+        // создаем инвентарь куда будет довлять твоары и убирать их в случае продажи, ключь - навзание товара, значение - его колличество
+        Map<String, Integer> inventory = new HashMap<>(); // ключь - навзание товара, значение - его колличество
         String PLANET = "beginning"; // переменная определения на какой планете игрок
-        String name = scan.nextLine();
+        String name = nameScan;
         double money = 100; 
         byte golod = 11; 
         double jajda = 16;
         int rez = 0; // счетчик для отслеживания рейтинга, чем меньше было действий для достижения цели тем ты крут
         player players = new player(name, rez, money, golod, jajda);
         boolean life = true; // создание переменной определяющей жив игрок или нет
-
+        
         // начало цикла игры 
         while (true) {
             // проверка уровня голода и жажды
