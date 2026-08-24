@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 class player {String name; double money; private byte golod; private double jajda; int rez; Map<String, Integer> inventory;
@@ -14,6 +17,7 @@ class player {String name; double money; private byte golod; private double jajd
         return "Ваше имя: " + name + " | У вас на балансе:  " + money + " | Ваши уровень голода: "
         + golod + " | Ваш уровень жажды: " + jajda;
     }  
+
     // гетеры для переменных private golod и jajda
     public byte getGolod() {return this.golod;}
     public double getJajda() {return this.jajda;}
@@ -284,29 +288,10 @@ public class space_market {
         System.out.println("Твоя главная цель, найти артефакт и привести его на землю");
         System.out.println();
         System.out.print("Введи имя своего персонажа: ");
-        String nameScan = null;
-
-        while (true) {// создаем цикл для исключения 
-            try {
-            System.out.print("Введи имя своего персонажа: ");
-            nameScan = scan.nextLine();
-            if (nameScan.trim().isEmpty()) {
-                System.out.println("Имя не может быть пустым!");
-                continue; // возвращаемся к началу цикла если ввод пустой 
-            }
-            break; // ← ВЫХОДИМ ИЗ ЦИКЛА, если всё ок
-        } catch (Exception error) {
-            System.out.println();
-            System.out.println("Ошибка: вы ввели не имя");
-            System.out.println("Повторите попытку!");
-            scan.nextLine();
-            System.out.println();
-            }
-        }
         // создаем инвентарь куда будет довлять твоары и убирать их в случае продажи, ключь - навзание товара, значение - его колличество
         Map<String, Integer> inventory = new HashMap<>(); // ключь - навзание товара, значение - его колличество
         String PLANET = "beginning"; // переменная определения на какой планете игрок
-        String name = nameScan;
+        String name = scan.nextLine(); // пользователь вводит имя своего персонажа
         double money = 100; 
         byte golod = 11; 
         double jajda = 16;
@@ -333,9 +318,7 @@ public class space_market {
             // проверка на то что игра только началась 
             if (PLANET.equals("beginning")) {
                 System.out.println("Это начало игры");
-                System.out.println();
-                System.out.println(players);
-                System.out.println();
+                inventary(players);
                 PLANET = "Earch"; System.out.println(); // переключение на планету Земля 
             }
             
@@ -343,11 +326,9 @@ public class space_market {
             else if (PLANET.equals("Earch")) {
                 System.out.println(planetEarch);
                 System.out.println();
-                if(inventory.containsKey("Artifact")) {
+                if(players.inventory.containsKey("Artifact")) {
                     System.out.println("Поздравляю, ты нашел атефакт и привез его на Землю");
-                    System.out.println();
-                    System.out.println(players);
-                    System.out.println();
+                    inventary(players);
                     System.out.println("Ты выиграл, игра окончена!");
                     System.out.println("Твой результат: " + players.rez);
                     return;}
@@ -357,8 +338,9 @@ public class space_market {
             else if (PLANET.equals("Mars")) {
                 System.out.println(planetMars);
                 System.out.println();
+                inventary(players);
                 currentPlanet = planetMars;
-                if(!inventory.containsKey("FilterSuit")) {
+                if(!players.inventory.containsKey("FilterSuit")) {
                     System.out.println("Игра окончена, ты задохнулся, у тебя не было скафандра с фильтрами");
                     System.out.println("Твой результат: " + players.rez); 
                     return;}
@@ -367,23 +349,23 @@ public class space_market {
             // проверка на то что игрок на Титане 
             else if (PLANET.equals("Titan")) {
                 System.out.println(planetTitan);
-                System.out.println();
+                inventary(players);
                 currentPlanet = planetTitan;
-                if (!inventory.containsKey("AdvancedSuit") && !inventory.containsKey("OxygenTank")) {
+                if (!players.inventory.containsKey("AdvancedSuit") && !inventory.containsKey("OxygenTank")) {
                     System.out.println("Игра окончена, ты задохнулся, у тебя не было продвинутого скафандра с балонами кислорода ");
                     System.out.println("Твой результат: " + players.rez); 
                     return;}
-                else if (!inventory.containsKey("AdvancedSuit")) {
+                else if (!players.inventory.containsKey("AdvancedSuit")) {
                     System.out.println("Игра оконченна, ты задохнулся, у тебя были балоны кислорода но не было продвинутого скафандра");
                     System.out.println("Твой результат: " + players.rez);
                     return;
                 } 
-                else if (!inventory.containsKey("OxygenTank")) {
+                else if (!players.inventory.containsKey("OxygenTank")) {
                     System.out.println("Игра окончена, ты задохнулся, у тебя был продвинутый скафандр но не было балонов с кислородом");
                     System.out.println("Твой результат: " + players.rez);
                     return;
                 }
-                else if (!inventory.containsKey("Repellent")) {
+                else if (!players.inventory.containsKey("Repellent")) {
                     System.out.println("Твоя песенка спета, игра окончена тебя разтерзали чудовища");
                     System.out.println("А все потому-что у тебя не было отпугивателя");
                     System.out.println("Твой результат: " + players.rez);
@@ -394,7 +376,7 @@ public class space_market {
             boolean exit = false;
 
             // создания переменной menu для switch на основе модуля вывода меню
-            int menu = menu(scan);
+            int menu = menu(scan, players);
             switch (menu) {
                 case 1: // пользователь выбрал пункт покупка-продажа
                     if (exit) {System.out.println();break;} // определине статуса переменой выхода из switch в начало основного цикла while boolean exit снова сбрасывается 
@@ -422,11 +404,50 @@ public class space_market {
             }
         }
     }
+    // МЕТОД ДЛЯ ВЫВОДА ИНВЕНТОРЯ И ПРОВЕРКИ НА ЕГО ПУСТОТУ 
+    public static void inventary(player players) {
+        if (players.inventory.isEmpty()) {
+            System.out.println();
+            System.out.println("ИНВЕНТАРЬ ПУСТ!");
+            System.out.println();
+        } else {
+            System.out.println();
+            System.out.println("=== ИНВЕНТАРЬ ==="); 
+            for (Map.Entry<String, Integer> word : players.inventory.entrySet()) {
+                System.out.println(word.getKey() + " -- " + word.getValue());
+            }
+            System.out.println();
+        }
+    }
+    // МЕТОД ДЛЯ СОХРАНЕНИЯ ИГРЫ 
+    public static void saveGame(player players, String currentPlanet) {
+
+        boolean proverka = false; //
+        while (!proverka) {
+            try (BufferedWriter word = new BufferedWriter(new FileWriter("Save.txt"))) {
+                word.write(players.name); word.newLine();
+                word.write(String.valueOf(players.getGolod())); word.newLine();
+                word.write(String.valueOf(players.getJajda())); word.newLine();
+                word.write(String.valueOf(players.rez)); word.newLine();
+                word.write(String.valueOf(players.money)); word.newLine();
+                word.write(currentPlanet); word.newLine();
+                for (Map.Entry<String, Integer> entry : players.inventory.entrySet() ) {
+                    word.write(entry.getKey() + ":" + entry.getValue()); word.newLine();
+                }
+                System.out.println("Игра сохранена!");
+                proverka = true;
+                System.out.println();
+            } catch (IOException error) {
+                System.out.println("Ошибка сохранения! повторите попытку");
+                System.out.println();
+            }
+        }
+    }
     // МЕТОД dev1 CASE 1 ДЛЯ ОСНОВНОГО МЕНЮ 
     public static int dev1 (Scanner scan, Map<String, Integer> inventory, player players, planet currPlanet) {
-        if (inventory.isEmpty()) {System.out.println("Инвентарь пуст"); System.out.println();} // проверка пустоты инвенторя
-        System.out.println(players); // вывод метода toString
         System.out.println();
+        System.out.println(players); // вывод метода toString
+        inventary(players); // метод вывода инвенторя 
         players.cheekStatus(); // метод проверки статуса голода и жаджды
         System.out.println();
         System.out.println("=== Рынок планеты - " + currPlanet.namePlanet + " ==="); // объявления рынка планеты 
@@ -441,8 +462,24 @@ public class space_market {
         System.out.println("1. Купить");
         System.out.println("2. Продать");
         System.out.println("3. Выйти в основное меню");
-        System.out.print("Выберите действие: ");
-        int ded = scan.nextInt(); // получение выбора пунта меню от пользователя 
+        int dedScan = 0;
+        boolean proverka = false;
+        while (!proverka) { // запуск цикла до получения данных от пользователя соответствующие пункту меню
+            try { // создание исключени
+                System.out.print("Выберите действие из пункта меню: ");
+                dedScan = scan.nextInt();// получение данных от пользвателя 
+                if (dedScan >= 1 && dedScan <= 3) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                else {System.out.println("Введите число как в меню 1, 2 или 3");}
+            } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
+                System.out.println();
+                System.out.println("Ошибка");
+                System.out.println("Выберите пункт меню введя цифру!");
+                System.out.println("Повторите попытку еще раз!");
+                System.out.println();
+                scan.nextLine();
+            }
+        }
+        int ded = dedScan; // получение выбора пунта меню от пользователя 
         scan.nextLine();
         System.out.println();
         if (ded >= 1 && ded <= 3) {return ded;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
@@ -453,29 +490,59 @@ public class space_market {
         if (inventory.isEmpty()) {System.out.println("Инвентарь пуст"); System.out.println();} // проверка инвентаря на пустоту
         System.out.println();
         System.out.println(players); // вывод метода toString
-        System.out.println();
-        players.cheekStatus(); // проверка статуса голода и жажды
-        System.out.println();   
+        inventary(players); // метода инвенторя
         System.out.println("=== ВЫБЕРИТЕ ДЕЙСТВИЕ ==="); // вывод меню
         System.out.println("1. Поесть");
         System.out.println("2. Попить");
         System.out.println("3. Выйти в основное меню"); 
-        System.out.print("Впишите свой выбор: ");
-        int ded = scan.nextInt(); // создание переменной выбора пункта меню от пользователя 
+        int dedScan = 0;
+        boolean proverka = false;
+        while (!proverka) { // запуск цикла до получения данных от пользователя соответствующие пункту меню
+            try { // создание исключени
+                System.out.print("Выберите действие из пункта меню: ");
+                dedScan = scan.nextInt();// получение данных от пользвателя 
+                if (dedScan >= 1 && dedScan <= 3) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                else {System.out.println("Введите число как в меню 1, 2 или 3");}
+            } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
+                System.out.println();
+                System.out.println("Ошибка");
+                System.out.println("Выберите пункт меню введя цифру!");
+                System.out.println("Повторите попытку еще раз!");
+                System.out.println();
+                scan.nextLine();
+            }
+        }
+        int ded = dedScan;
         scan.nextLine();
         if (ded >= 1 && ded <= 3) {return ded;}// проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
         else {System.out.println("Не верный пункт меню!"); return 0;} // срабатываение проверка на не существующий пункт меню от пользователя  
     }
     // МЕТОД ОСНОВНОГО МЕНЮ
-    public static int menu (Scanner scan) {
+    public static int menu (Scanner scan, player players) {
         // меню 
-        System.out.println();
+        inventary(players); //  метод инвенторя
         System.out.println("1. Покупка-продажа");
         System.out.println("2. Поесть-попить");
         System.out.println("3. В путь");
         System.out.println();
-        System.out.print("Выберите пункт основного меню: ");
-        byte vibor = scan.nextByte(); // создание переменной выбора пункта меню от пользователя
+        byte viborScan = 0;
+        boolean proverka = false;
+        while (!proverka) { // запуск цикла до получения данных от пользователя соответствующие пункту меню
+            try { // создание исключени
+                System.out.print("Выберите действие из пункта меню: ");
+                viborScan = scan.nextByte();// получение данных от пользвателя 
+                if (viborScan >= 1 && viborScan <= 3) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                else {System.out.println("Введите число как в меню 1, 2 или 3");}
+            } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
+                System.out.println();
+                System.out.println("Ошибка");
+                System.out.println("Выберите пункт меню введя цифру!");
+                System.out.println("Повторите попытку еще раз!");
+                System.out.println();
+                scan.nextLine();
+            }
+        }
+        byte vibor = viborScan; // создание переменной выбора пункта меню от пользователя
         scan.nextLine();
         if (vibor >= 1 && vibor <= 3) {return vibor;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
         else {System.out.println("Не верный пункт меню!");return 0;} // срабатываение проверка на не существующий пункт меню от пользователя  
@@ -485,12 +552,29 @@ public class space_market {
         System.out.println();
         players.cheekStatus();System.out.println(); // проверка на уровень голода и жажды
         // провека на наличие еды в инвентаре 
-        if (!inventory.containsKey("Food")) {// провека на отсутствие еды в инвентаре 
+        if (!players.inventory.containsKey("Food")) {// провека на отсутствие еды в инвентаре 
         System.out.println("В инвентаре нет еды!");System.out.println(); return;}
         System.out.println("Одна единица еды дает +2 к шкале");
-        int kolvoEDA = inventory.get("Food"); // создание переенной и прививание ей колличество еды в инвентаре
-        System.out.print("У тебя в инвентаре сейчас: " + kolvoEDA + " единиц еды, сколько ты хочешь израсходовать?: ");
-        int EMEda = scan.nextInt(); // получение данных от пользователя в каком количестве еды он хочет поесть
+        inventary(players); // метод инвенторя
+        int kolvoEDA = players.inventory.get("Food"); // создание переенной и прививание ей колличество еды в инвентаре
+        int EMEdaScan = 0;
+        boolean proverka = false;
+        while (!proverka) { // запуск цикла до получения данных от пользователя соответствующие пункту меню
+            try { // создание исключени
+                System.out.print("У тебя в инвентаре сейчас: " + kolvoEDA + " единиц еды, сколько ты хочешь израсходовать?: ");
+                EMEdaScan = scan.nextInt();// получение данных от пользвателя 
+                if (EMEdaScan >= 1 && EMEdaScan <= 3) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                else {System.out.println("Введите число как в меню 1, 2 или 3");}
+            } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
+                System.out.println();
+                System.out.println("Ошибка");
+                System.out.println("Выберите пункт меню введя цифру!");
+                System.out.println("Повторите попытку еще раз!");
+                System.out.println();
+                scan.nextLine();
+            }
+        }
+        int EMEda = EMEdaScan; // получение данных от пользователя в каком количестве еды он хочет поесть
         if (EMEda > kolvoEDA) { // сравнение что колличество которое хочет съесть игрок не привышает колличество которо есть в инвентаре 
             System.out.println();
             System.out.println("Еще раз, у тебя только " + kolvoEDA + " еды ");
@@ -500,7 +584,7 @@ public class space_market {
             EMEda = kolvoEDA; // в случае если колличество в инвентаре меньше желаемого, то игрок съест максимум из того что есть
         }
 
-        inventory.put("Food", kolvoEDA - EMEda); // удаление из инвентаря колличество еды которое будет съедено
+        players.inventory.put("Food", kolvoEDA - EMEda); // удаление из инвентаря колличество еды которое будет съедено
         int newGolod = players.getGolod() + (EMEda * 2); // прибавление к шкале голода +2 пункта за каждую съеденную единцу еды 
         players.setGolod((byte) newGolod); // проверка Сеттера максимального лимита шкалы голода 
         System.out.println("Готово, ты поел"); 
@@ -513,12 +597,29 @@ public class space_market {
         System.out.println();
         players.cheekStatus(); // вызов метода проверки статуса голода и жажды
         System.out.println();
-        if (!inventory.containsKey("Water")) { // проверка на отсутствие воды в инвентаре 
+        if (!players.inventory.containsKey("Water")) { // проверка на отсутствие воды в инвентаре 
         System.out.println("В инвентаре нет воды!"); System.out.println();return;}
         System.out.println("Одна единица воды дает +3 к шкале");
-        int kolvoEDA = inventory.get("Water"); // прививание переменной колличество воды в инвентаре 
-        System.out.print("У тебя в инвентаре сейчас: " + kolvoEDA + " единиц воды, сколько ты хочешь израсходовать?: ");
-        int EMEda = scan.nextInt(); // получение от пользователя данных какое колличество единиц воды он хочет выпить
+        inventary(players); // метод инвенторя
+        int kolvoEDA = players.inventory.get("Water"); // прививание переменной колличество воды в инвентаре 
+        int EMEdaScan = 0;
+        boolean proverka = false;
+        while (!proverka) { // запуск цикла до получения данных от пользователя соответствующие пункту меню
+            try { // создание исключени
+                System.out.print("У тебя в инвентаре сейчас: " + kolvoEDA + " единиц воды, сколько ты хочешь израсходовать?: ");
+                EMEdaScan = scan.nextInt();// получение данных от пользвателя 
+                if (EMEdaScan >= 1 && EMEdaScan <= 3) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                else {System.out.println("Введите число как в меню 1, 2 или 3");}
+            } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
+                System.out.println();
+                System.out.println("Ошибка");
+                System.out.println("Выберите пункт меню введя цифру!");
+                System.out.println("Повторите попытку еще раз!");
+                System.out.println();
+                scan.nextLine();
+            }
+        }
+        int EMEda = EMEdaScan; // получение от пользователя данных какое колличество единиц воды он хочет выпить
         if (EMEda > kolvoEDA) { // сравнение что колличество которое хочет съесть игрок не привышает колличество которо есть в инвентаре 
             System.out.println();
             System.out.println("Еще раз, у тебя только " + kolvoEDA + " воды ");
@@ -529,7 +630,7 @@ public class space_market {
             EMEda = kolvoEDA; // в слачае если колличество в инвентаре меньше желаемого, игрок выпьет максимум из того что есть.
         }
 
-        inventory.put("Water", kolvoEDA - EMEda); // после питья вычитание колличество единиц воды из инвенторя
+        players.inventory.put("Water", kolvoEDA - EMEda); // после питья вычитание колличество единиц воды из инвенторя
         double newJajda = players.getJajda() + (EMEda * 3); // прибовление к шкале жажды +3 за каждую выпитую единицу воды
         players.setJajda(newJajda); // проверка Сеттера максимального лимита шкалы жажды
         System.out.println("Готово, ты попил");
@@ -539,13 +640,32 @@ public class space_market {
     }
     // МЕТОД ДЛЯ ПОКУПКИ
     public static void pokupka(Scanner scan, player players, Map<String, Integer> inventory, planet currentPlanet) {
-    
+        inventary(players); // метод инвенторя
         currentPlanet.showSeelGoods(); // вывпод списка товаров и цен которые продает текущая планета 
      
         System.out.print("Введите название товара, которое хотите купить: ");
         String tovarB = scan.nextLine(); // получение от пользователя название товара который он хочет купить 
-        System.out.print("Введите количество: ");
-        int shotB = scan.nextInt(); // получение от пользователя колличество выбранного товара который он хочет купить
+        int shotBScan = 0;
+        boolean proverka = false;
+        while (!proverka) { // запуск цикла до получения данных от пользователя соответствующие пункту меню
+            try { // создание исключени
+                System.out.print("Введите количество: ");
+                shotBScan = scan.nextInt();// получение данных от пользвателя 
+                if (shotBScan > 0) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                else {System.out.println("Колличество не может быть равна 0");
+                    System.out.println("Повтори попытку!");
+                    System.out.println();;
+                }
+            } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
+                System.out.println();
+                System.out.println("Ошибка");
+                System.out.println("Вводи цифрами а не словами!");
+                System.out.println("Повтори попытку еще раз!");
+                System.out.println();
+                scan.nextLine();
+            }
+        }
+        int shotB = shotBScan; // получение от пользователя колличество выбранного товара который он хочет купить
         scan.nextLine();
         System.out.println();
         System.out.println("Вы ввели: " + tovarB);
@@ -567,7 +687,7 @@ public class space_market {
         }
 
         // денег, хватает, добавляем товар и его колличество в инвентарь
-        inventory.put(tovarB, inventory.getOrDefault(tovarB, 0) + shotB);
+        players.inventory.put(tovarB, players.inventory.getOrDefault(tovarB, 0) + shotB);
         players.money -= totalCost; // вычитаем колличество потраченных денег из кармана игрока
         int newGolod = players.getGolod() - 1; // уменшаем шкалу голода на 1 пункт
         players.setGolod((byte) newGolod);
@@ -583,19 +703,38 @@ public class space_market {
     // МЕТОД ДЛЯ ПРОДАЖИ
     public static void prodaja(Scanner scan, player players, Map<String, Integer> inventory, planet currentPlanet) {
         currentPlanet.showByuGoods(); // вывод рырка товаров и цен которые планета хочет купить
-    
+        inventary(players); // метод инвенторя
         System.out.print("Введите название товара, который хотите продать: ");
         String tovarS = scan.nextLine(); // получение название товара от пользователя который он хочет продать 
-        System.out.print("Введите количество: ");
-        int shotS = scan.nextInt(); // получение колличества которое он хочет продать
+        int shotSScan = 0;
+        boolean proverka = false;
+        while (!proverka) { // запуск цикла до получения данных от пользователя соответствующие пункту меню
+            try { // создание исключени
+                System.out.print("Введите количество: ");
+                shotSScan = scan.nextInt();// получение данных от пользвателя 
+                if (shotSScan > 0) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                else {System.out.println("Колличество не может быть равна 0");
+                    System.out.println("Повтори попытку!");
+                    System.out.println();;
+                }
+            } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
+                System.out.println();
+                System.out.println("Ошибка");
+                System.out.println("Вводи цифрами а не словами!");
+                System.out.println("Повтори попытку еще раз!");
+                System.out.println();
+                scan.nextLine();
+            }
+        }
+        int shotS = shotSScan; // получение колличества которое он хочет продать
         scan.nextLine();
 
-        if (!inventory.containsKey(tovarS)) { // проверка на наличе данного товара в инвентаре 
+        if (!players.inventory.containsKey(tovarS)) { // проверка на наличе данного товара в инвентаре 
             System.out.println("В твоем инвентаре нет такого товара!"); System.out.println();
             return; // в случае если нет, то выход из программы в главное меню
         }
 
-        int currentQty = inventory.get(tovarS); // прививание к переменной колличество товара на продажу которое есть в инвентаре 
+        int currentQty = players.inventory.get(tovarS); // прививание к переменной колличество товара на продажу которое есть в инвентаре 
         if (currentQty < shotS) { // сравнение хватит ли на продажу того что есть 
             System.out.println("У тебя только " + currentQty + " шт. " + tovarS); System.out.println();
             return; // в случае если не хватает, вывод сообщения в консоль и выход в основное меню
@@ -618,9 +757,9 @@ public class space_market {
 
         int newQty = currentQty - shotS; // проверка на то что игрок продал все колличество выбранного товара 
         if (newQty == 0) {
-            inventory.remove(tovarS); // если да то удаление самого товара из инвентаря
+            players.inventory.remove(tovarS); // если да то удаление самого товара из инвентаря
         } else {
-            inventory.put(tovarS, newQty); // если нет то обновление колличества товара 
+            players.inventory.put(tovarS, newQty); // если нет то обновление колличества товара 
         }
 
         System.out.println("Продано: " + tovarS + " x" + shotS + " за " + totalIncome + "$ на планете " + currentPlanet.namePlanet);
@@ -645,10 +784,7 @@ public class space_market {
         System.out.println();
         if (currentPlanet.namePlanet.equals("Earch")) { // проверка того что текущая планета нахождения игрока это земля
             System.out.println("Для перелета вам доступна только планета Марс, убедитесь что у вас есть в инвентаре скафандр с фильтрами иначе вам не выжить");
-            if (players.inventory.isEmpty()) { // уведомление в случае если инвентарь игрока пуст
-                System.out.println("Инвентарь пуст!");
-                System.out.println();
-            } else {System.out.println(players.inventory); System.out.println();}
+            inventary(players); // метод инвенторя
             System.out.print("Если согласен перелететь напиши 'Yes', если хотите выйти в основное меню, напишите 'Exit': ");
             String otvet = scan.nextLine(); // получение ответа от пользвателя, на согласие или отказ от перелета на ближайшую планету Марс
             if (otvet.equalsIgnoreCase("Yes")) { // при положительном ответе 
@@ -680,10 +816,7 @@ public class space_market {
             System.out.println("Если выбираешь планету Титан напиши 'Titan' если хочешь вернуться на Землю напиши 'Earch'");
             System.out.println("Если хочешь выйти в основное меню напиши 'Exit'");
             System.out.print("Итак, ваш выбор: ");
-            if (players.inventory.isEmpty()) { // проверка на пустоту инвенторя
-                System.out.println("Инвентарь пуст!");
-                System.out.println();
-            } else {System.out.println(players.inventory); System.out.println();}
+            inventary(players); // метод инвенторя
             String otvet = scan.nextLine(); // получение ответа от пользователя для дальнейших действий 
             if (otvet.equalsIgnoreCase("Titan")) { // вариант при выборе планте Титан для перелета 
                 players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие 
@@ -719,10 +852,7 @@ public class space_market {
         if (currentPlanet.namePlanet.equals("Titan")) { // в случае если игрок находиться на Титане 
             System.out.println("Поздравляю ты побывал на последней планете и выжил");
             System.out.println("Убедись что ты положил в инвентарь артефакт и полетели в обратный путь");
-            if (players.inventory.isEmpty()) {
-                System.out.println("Инвентарь пуст!");
-                System.out.println();
-            } else {System.out.println(players.inventory); System.out.println();}
+            inventary(players); // метод инвенторя
             System.out.println("Единсвтенная планета для перелета из доступных это Марс");
             System.out.println("Если подтверждаешь перелет, напиши 'Yes'");
             System.out.println("Если хочешь выйти в основное меню напиши 'Exit'");
