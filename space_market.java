@@ -3,15 +3,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-class player {String name; double money; private byte golod; private double jajda; int rez; Map<String, Integer> inventory;
+class player {String name; double money; private byte golod; private double jajda; int rez; Map<String, Integer> inventory; boolean life;
     // конструктор класса player (игрок)
-    public player (String name, int rez, double money, byte golod, double jajda /*уровень жажды воды */) {
+    public player (String name, int rez, double money, byte golod, double jajda, boolean life/*уровень жажды воды */) {
         this.name = name; 
         setGolod(golod);
         setJajda(jajda);
         this.money = money; 
         this.rez = rez;
-        this.inventory = new HashMap<>();}
+        this.inventory = new HashMap<>();
+        this.life = life;}
     // метод для вывода всех переменных объекта игрока     
     public String toString() {
         return "Ваше имя: " + name + " | У вас на балансе:  " + money + " | Ваши уровень голода: "
@@ -296,11 +297,12 @@ public class space_market {
         byte golod = 11; 
         double jajda = 16;
         int rez = 0; // счетчик для отслеживания рейтинга, чем меньше было действий для достижения цели тем ты крут
-        player players = new player(name, rez, money, golod, jajda);
         boolean life = true; // создание переменной определяющей жив игрок или нет
+        player players = new player(name, rez, money, golod, jajda, life);
         
         // начало цикла игры 
         while (true) {
+            if (!players.life) {return;}
             // проверка уровня голода и жажды
             if (players.getGolod() <= 0 || players.getJajda() <= 0) {life = false;}
             // проверка на то что игрок мертв
@@ -318,7 +320,6 @@ public class space_market {
             // проверка на то что игра только началась 
             if (PLANET.equals("beginning")) {
                 System.out.println("Это начало игры");
-                inventary(players);
                 PLANET = "Earch"; System.out.println(); // переключение на планету Земля 
             }
             
@@ -371,12 +372,11 @@ public class space_market {
                     System.out.println("Твой результат: " + players.rez);
                 }
             }
-
             // создания переменой для определения надобности выхода в основное меню
             boolean exit = false;
 
             // создания переменной menu для switch на основе модуля вывода меню
-            int menu = menu(scan, players);
+            int menu = menu(scan, players, planetMars);
             switch (menu) {
                 case 1: // пользователь выбрал пункт покупка-продажа
                     if (exit) {System.out.println();break;} // определине статуса переменой выхода из switch в начало основного цикла while boolean exit снова сбрасывается 
@@ -400,7 +400,14 @@ public class space_market {
                     } break;
                 case 3:  // пользователь выбрал пунтк перелета на другую планету
                     if (exit) {System.out.println();break;}  // вывод модуля выхода в основное меню
-                    PLANET = perelet(scan, players, currentPlanet); System.out.println(); break; // вывод выбора планеты перелета
+                    PLANET = perelet(scan, players, currentPlanet); System.out.println(); 
+                    break; // вывод выбора планеты перелета
+                case 4: // если игкрок на титане то открываеться доступ к 4 пунтку основного меню
+                    if(!currentPlanet.namePlanet.equals("Titan")) {// доп. проверка на то что если игрок без увиденного пункта меню введет цифру 4
+                        System.out.println("На ходясь на планете: " + currentPlanet.namePlanet + " Такого пунткта меню нет!");
+                        break;} // выход в основное меню если игрок не на Титане 
+                    else {Battle(scan, players);}
+                    break;
             }
         }
     }
@@ -485,7 +492,7 @@ public class space_market {
         if (ded >= 1 && ded <= 3) {return ded;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
         else {System.out.println("Не верный пункт меню!"); return 0;} // срабатываение проверка на не существующий пункт меню от пользователя  
     }
-    // МЕТОД CASE 2 ДЛЯ ОСНОВНОГО МЕНЮ 
+    // МЕТОД dev2 CASE 2 ДЛЯ ОСНОВНОГО МЕНЮ 
     public static int dev2 (Scanner scan, Map<String, Integer> inventory, player players) {
         if (inventory.isEmpty()) {System.out.println("Инвентарь пуст"); System.out.println();} // проверка инвентаря на пустоту
         System.out.println();
@@ -518,12 +525,15 @@ public class space_market {
         else {System.out.println("Не верный пункт меню!"); return 0;} // срабатываение проверка на не существующий пункт меню от пользователя  
     }
     // МЕТОД ОСНОВНОГО МЕНЮ
-    public static int menu (Scanner scan, player players) {
+    public static int menu (Scanner scan, player players, planet currePlanet) {
         // меню 
         inventary(players); //  метод инвенторя
         System.out.println("1. Покупка-продажа");
         System.out.println("2. Поесть-попить");
         System.out.println("3. В путь");
+        if (currePlanet.namePlanet.equals("Titan")){ // проверка на то что игрок сейчас на Титане чтобы чтобы добавить вывод 4 пункта меню
+            System.out.println("4. Сразиться с чудовищами");
+        }
         System.out.println();
         byte viborScan = 0;
         boolean proverka = false;
@@ -531,8 +541,12 @@ public class space_market {
             try { // создание исключени
                 System.out.print("Выберите действие из пункта меню: ");
                 viborScan = scan.nextByte();// получение данных от пользвателя 
-                if (viborScan >= 1 && viborScan <= 3) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
-                else {System.out.println("Введите число как в меню 1, 2 или 3");}
+                if (viborScan >= 1 && viborScan <= 4) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                else {
+                    if (currePlanet.namePlanet.equals("Earch") || currePlanet.namePlanet.equals("Mars")) {
+                    System.out.println("Введите число как в меню 1, 2 или 3");
+                    } else {System.out.println("Введите число как в меню 1, 2, 3 или 4");}
+                }
             } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
                 System.out.println();
                 System.out.println("Ошибка");
@@ -778,16 +792,32 @@ public class space_market {
         if(otvet.equalsIgnoreCase("Yes")) {return true;} // в случае положительного выбора, присвоение к изначальному boolean exit = false значение true
         else {return false;} // в ином случае остаеться false
     }
-    // ПЕРЕЛЕТ НА ДРУГУЮ ПЛАНЕТУ
+    // МЕТОД ПРОВЕРКИ НАЛЧИЯ ТОПЛИВА 
+    public static boolean Fuel(planet currentPlanet, player players) {
+        int FuelKolvo = players.inventory.get("Fuel");
+        if(players.inventory.containsKey("Fuel") && FuelKolvo >= 20 ) {
+                System.out.println("У вас есть топливо");
+                if(FuelKolvo  > 20) {
+                    System.out.println("После перелета его станет 20 единиц меньше");
+                } else if ( FuelKolvo == 20) {
+                    System.out.println("После перелета нужно будет купить топливо снова");
+                    System.out.println("Минимум 20 единиц!");
+                } return true;
+        } else {return false;}
+    }
+    // МЕТОД CASE 3 ПЕРЕЛЕТ НА ДРУГУЮ ПЛАНЕТУ
     public static String perelet (Scanner scan, player players, planet currentPlanet) {
         players.cheekStatus(); // вызов метода проверки уровня голода и жажды 
         System.out.println();
+        boolean Fuel = false;
         if (currentPlanet.namePlanet.equals("Earch")) { // проверка того что текущая планета нахождения игрока это земля
             System.out.println("Для перелета вам доступна только планета Марс, убедитесь что у вас есть в инвентаре скафандр с фильтрами иначе вам не выжить");
             inventary(players); // метод инвенторя
             System.out.print("Если согласен перелететь напиши 'Yes', если хотите выйти в основное меню, напишите 'Exit': ");
             String otvet = scan.nextLine(); // получение ответа от пользвателя, на согласие или отказ от перелета на ближайшую планету Марс
             if (otvet.equalsIgnoreCase("Yes")) { // при положительном ответе 
+                Fuel(currentPlanet, players); // провекра на колличество топлива
+                if (!Fuel(currentPlanet, players)) {return currentPlanet.namePlanet;} // действие в случае не прохождения проверки
                 players.rez++; // увеличение рейтинга за совершенное действие на 1 пункт
                 int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенного действие
                 players.setGolod((byte) newGolod);
@@ -819,6 +849,8 @@ public class space_market {
             inventary(players); // метод инвенторя
             String otvet = scan.nextLine(); // получение ответа от пользователя для дальнейших действий 
             if (otvet.equalsIgnoreCase("Titan")) { // вариант при выборе планте Титан для перелета 
+                Fuel(currentPlanet, players); // провекра на колличество топлива
+                if (!Fuel(currentPlanet, players)) {return currentPlanet.namePlanet;} // действие в случае не прохождения проверки
                 players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие 
                 int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
                 players.setGolod((byte) newGolod);
@@ -829,6 +861,8 @@ public class space_market {
                 return "Titan"; // сделать текущую планету нахождения игрока Титан
             }
             else if (otvet.equalsIgnoreCase("Earch")) {
+                Fuel(currentPlanet, players); // провекра на колличество топлива
+                if (!Fuel(currentPlanet, players)) {return currentPlanet.namePlanet;} // действие в случае не прохождения проверки
                 players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие
                 int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
                 players.setGolod((byte) newGolod);
@@ -859,6 +893,8 @@ public class space_market {
             System.out.print("Итак, ващ выбор: ");
             String otvet = scan.nextLine();
             if (otvet.equalsIgnoreCase("Yes")) {
+                Fuel(currentPlanet, players); // провекра на колличество топлива
+                if (!Fuel(currentPlanet, players)) {return currentPlanet.namePlanet;} // действие в случае не прохождения проверки
                 players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие
                 int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
                 players.setGolod((byte) newGolod);
@@ -879,6 +915,63 @@ public class space_market {
         }    
         System.out.println();
         return currentPlanet.namePlanet; // если не один из операторов не сработал то оставить игрока на текущей планете 
+    }
+    // МЕТОД ВЗАИМОДЕЙСТВИЯ С ЧУДОВИЩАМИ
+    public static void Battle(Scanner scan, player players) {
+        inventary(players);
+        System.out.println("Итак ты решил помериться силами с чудовищами");
+        System.out.println("Похвально");
+        System.out.println("А сможешь ли?");
+        System.out.println("За каждого убитого тобой мостра ты удостоищься чести вырвать ему клыки");
+        System.out.println("Всего их четыре");
+        System.out.println("Убедись что ты вооружен, это важно ");
+        System.out.println();
+        System.out.println("1. Атаковать");
+        System.out.println("2. Лучше подготовлюсь по лучше");
+        int otvetScan = 0;
+        boolean proverka = false;
+        while (!proverka) { // запуск цикла до получения данных от пользователя соответствующие пункту меню
+            try { // создание исключени
+                System.out.print("Выберите действие: ");
+                otvetScan = scan.nextInt();// получение данных от пользвателя 
+                if (otvetScan >= 1 && otvetScan <= 2) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                else {System.out.println("Введите число как в меню 1 или 2");}
+            } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
+                System.out.println();
+                System.out.println("Ошибка");
+                System.out.println("Выберите пункт меню введя цифру!");
+                System.out.println("Повторите попытку еще раз!");
+                System.out.println();
+                scan.nextLine();
+            }
+        }
+        int otvet = otvetScan;
+        if(otvet == 1) {
+            if (!players.inventory.containsKey("Weapon")) {
+                System.out.println("У тебя не было оружия");
+                System.out.println("Ты умер");
+                System.out.println("Игра окончена!");
+                players.life = false;
+            }
+            else {
+                System.out.println();
+                System.out.println("Поздравляю воин");
+                System.out.println("Ты завалил чудовище и забрал себе его клыки");
+                System.out.println("Правда сломал оружие, но ничего страшного");
+                System.out.println();
+                players.rez++; // увеличение рейтинга за совершенное действие на 1 пункт
+                int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенного действие
+                players.setGolod((byte) newGolod);
+                double newJajda = players.getJajda() - 1.5; // уменшение уровня голода на 1.5 пункт за совершенного действие
+                players.setJajda(newJajda);
+                players.cheekStatus(); // проверка уровня голода и жажды 
+                System.out.println(); 
+                players.inventory.put("Fangs", players.inventory.getOrDefault("Fangs", 0) + 4);
+                int kolvoWeapon = players.inventory.get("Weapon");
+                kolvoWeapon --;
+                players.inventory.put("Weapon", kolvoWeapon);
+            }
+        }
     }
 }
 
