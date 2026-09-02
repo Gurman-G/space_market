@@ -36,12 +36,12 @@ class player {String name; double money; private byte golod; private double jajd
     //метод для проверки уровня голода и жады, для вывода предупреждений 
     public void cheekStatus() {
         if (golod == 3 || golod == 2) {System.out.println("Ты проголодался, пора подкрепится");}
-        if (golod == 1) {System.out.println("Ты голоден, надо сроно поесть ");}
-        if (golod < 1) {System.out.println("Ты умер от голода, игра окончена. Твой рейтинг: " + rez);}
-        if (jajda == 7) {System.out.println("Ты хочешь пить, но это не критично");}
-        if (jajda == 4) {System.out.println("Тебя мучает жажда, выпей воды");}
-        if (jajda ==1) {System.out.println("Срочно выпей воды");}
-        if (jajda < 1) {System.out.println("Ты умер от жажды, игра окончена, твой рейтинг: " + rez);}
+        else if (golod == 1) {System.out.println("Ты голоден, надо сроно поесть ");}
+        else if (golod < 1) {System.out.println("Ты умер от голода, игра окончена. Твой рейтинг: " + rez);}
+        else if (jajda == 7) {System.out.println("Ты хочешь пить, но это не критично");}
+        else if (jajda == 4) {System.out.println("Тебя мучает жажда, выпей воды");}
+        else if (jajda ==1) {System.out.println("Срочно выпей воды");}
+        else if (jajda < 1) {System.out.println("Ты умер от жажды, игра окончена, твой рейтинг: " + rez);}
     }
 }
 
@@ -577,8 +577,7 @@ public class space_market {
             try { // создание исключени
                 System.out.print("У тебя в инвентаре сейчас: " + kolvoEDA + " единиц еды, сколько ты хочешь израсходовать?: ");
                 EMEdaScan = scan.nextInt();// получение данных от пользвателя 
-                if (EMEdaScan >= 1 && EMEdaScan <= 3) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
-                else {System.out.println("Введите число как в меню 1, 2 или 3");}
+                proverka = true; // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
             } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
                 System.out.println();
                 System.out.println("Ошибка");
@@ -597,12 +596,12 @@ public class space_market {
             System.out.println();
             EMEda = kolvoEDA; // в случае если колличество в инвентаре меньше желаемого, то игрок съест максимум из того что есть
         }
-
-        players.inventory.put("Food", kolvoEDA - EMEda); // удаление из инвентаря колличество еды которое будет съедено
+        int newKolvo = kolvoEDA - EMEda; // удаление из инвентаря колличество еды которое будет съедено, и полное удаление в случае 0
+        if (newKolvo == 0) {players.inventory.remove("Food");}
+        else {players.inventory.put("Food", newKolvo);} 
         int newGolod = players.getGolod() + (EMEda * 2); // прибавление к шкале голода +2 пункта за каждую съеденную единцу еды 
         players.setGolod((byte) newGolod); // проверка Сеттера максимального лимита шкалы голода 
         System.out.println("Готово, ты поел"); 
-        System.out.println();
         players.cheekStatus(); // вызов метода проверки статуса голода и жажды
         System.out.println();
     }
@@ -622,8 +621,7 @@ public class space_market {
             try { // создание исключени
                 System.out.print("У тебя в инвентаре сейчас: " + kolvoEDA + " единиц воды, сколько ты хочешь израсходовать?: ");
                 EMEdaScan = scan.nextInt();// получение данных от пользвателя 
-                if (EMEdaScan >= 1 && EMEdaScan <= 3) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
-                else {System.out.println("Введите число как в меню 1, 2 или 3");}
+                proverka = true; // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
             } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
                 System.out.println();
                 System.out.println("Ошибка");
@@ -643,8 +641,9 @@ public class space_market {
 
             EMEda = kolvoEDA; // в слачае если колличество в инвентаре меньше желаемого, игрок выпьет максимум из того что есть.
         }
-
-        players.inventory.put("Water", kolvoEDA - EMEda); // после питья вычитание колличество единиц воды из инвенторя
+        int newKolvo = kolvoEDA - EMEda; // после питья вычитание колличество единиц воды из инвенторя удаляем в случае остатка 0
+        if (newKolvo == 0) {players.inventory.remove("Water");}
+        else {players.inventory.put("Water", newKolvo);} 
         double newJajda = players.getJajda() + (EMEda * 3); // прибовление к шкале жажды +3 за каждую выпитую единицу воды
         players.setJajda(newJajda); // проверка Сеттера максимального лимита шкалы жажды
         System.out.println("Готово, ты попил");
@@ -792,32 +791,30 @@ public class space_market {
         if(otvet.equalsIgnoreCase("Yes")) {return true;} // в случае положительного выбора, присвоение к изначальному boolean exit = false значение true
         else {return false;} // в ином случае остаеться false
     }
-    // МЕТОД ПРОВЕРКИ НАЛЧИЯ ТОПЛИВА 
-    public static boolean Fuel(planet currentPlanet, player players) {
-        int FuelKolvo = players.inventory.get("Fuel");
-        if(players.inventory.containsKey("Fuel") && FuelKolvo >= 20 ) {
-                System.out.println("У вас есть топливо");
-                if(FuelKolvo  > 20) {
-                    System.out.println("После перелета его станет 20 единиц меньше");
-                } else if ( FuelKolvo == 20) {
-                    System.out.println("После перелета нужно будет купить топливо снова");
-                    System.out.println("Минимум 20 единиц!");
-                } return true;
-        } else {return false;}
-    }
     // МЕТОД CASE 3 ПЕРЕЛЕТ НА ДРУГУЮ ПЛАНЕТУ
     public static String perelet (Scanner scan, player players, planet currentPlanet) {
         players.cheekStatus(); // вызов метода проверки уровня голода и жажды 
         System.out.println();
-        boolean Fuel = false;
+        if (!players.inventory.containsKey("Fuel")) {
+            System.out.println();
+            System.out.println("С пустым баком по планетам, серьезно?");
+            System.out.println();
+            System.out.println("Полет запрещен!"); return currentPlanet.namePlanet; // действие в случае недостаточного колличества топлива для перелета
+        }
+        int FuelKolvo = players.inventory.get("Fuel");
+        if(!players.inventory.containsKey("Fuel") || FuelKolvo <= 20 ) {
+            System.out.println("Недостаточно топлива, должно быть минимум 20 единииц."); 
+            System.out.println("Полет запрещен!"); return currentPlanet.namePlanet; // действие в случае недостаточного колличества топлива для перелета
+        }
         if (currentPlanet.namePlanet.equals("Earch")) { // проверка того что текущая планета нахождения игрока это земля
             System.out.println("Для перелета вам доступна только планета Марс, убедитесь что у вас есть в инвентаре скафандр с фильтрами иначе вам не выжить");
             inventary(players); // метод инвенторя
             System.out.print("Если согласен перелететь напиши 'Yes', если хотите выйти в основное меню, напишите 'Exit': ");
             String otvet = scan.nextLine(); // получение ответа от пользвателя, на согласие или отказ от перелета на ближайшую планету Марс
             if (otvet.equalsIgnoreCase("Yes")) { // при положительном ответе 
-                Fuel(currentPlanet, players); // провекра на колличество топлива
-                if (!Fuel(currentPlanet, players)) {return currentPlanet.namePlanet;} // действие в случае не прохождения проверки
+                int newFuelkolvo = FuelKolvo - 20;
+                if (newFuelkolvo == 0) {players.inventory.remove("Fuel");}
+                else {players.inventory.put("Fuel", newFuelkolvo );}
                 players.rez++; // увеличение рейтинга за совершенное действие на 1 пункт
                 int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенного действие
                 players.setGolod((byte) newGolod);
@@ -845,12 +842,13 @@ public class space_market {
             System.out.println("Если у тебя нет нужных вещей в инвентаре и ты не видел их на рынке марса, советую вернуться на змелю");
             System.out.println("Если выбираешь планету Титан напиши 'Titan' если хочешь вернуться на Землю напиши 'Earch'");
             System.out.println("Если хочешь выйти в основное меню напиши 'Exit'");
-            System.out.print("Итак, ваш выбор: ");
             inventary(players); // метод инвенторя
+            System.out.print("Итак, ваш выбор: ");
             String otvet = scan.nextLine(); // получение ответа от пользователя для дальнейших действий 
             if (otvet.equalsIgnoreCase("Titan")) { // вариант при выборе планте Титан для перелета 
-                Fuel(currentPlanet, players); // провекра на колличество топлива
-                if (!Fuel(currentPlanet, players)) {return currentPlanet.namePlanet;} // действие в случае не прохождения проверки
+                int newFuelkolvo = FuelKolvo - 20;
+                if (newFuelkolvo == 0) {players.inventory.remove("Fuel");}
+                else {players.inventory.put("Fuel", newFuelkolvo );}
                 players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие 
                 int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
                 players.setGolod((byte) newGolod);
@@ -861,8 +859,9 @@ public class space_market {
                 return "Titan"; // сделать текущую планету нахождения игрока Титан
             }
             else if (otvet.equalsIgnoreCase("Earch")) {
-                Fuel(currentPlanet, players); // провекра на колличество топлива
-                if (!Fuel(currentPlanet, players)) {return currentPlanet.namePlanet;} // действие в случае не прохождения проверки
+                int newFuelkolvo = FuelKolvo - 20;
+                if (newFuelkolvo == 0) {players.inventory.remove("Fuel");}
+                else {players.inventory.put("Fuel", newFuelkolvo );}
                 players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие
                 int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
                 players.setGolod((byte) newGolod);
@@ -893,8 +892,9 @@ public class space_market {
             System.out.print("Итак, ващ выбор: ");
             String otvet = scan.nextLine();
             if (otvet.equalsIgnoreCase("Yes")) {
-                Fuel(currentPlanet, players); // провекра на колличество топлива
-                if (!Fuel(currentPlanet, players)) {return currentPlanet.namePlanet;} // действие в случае не прохождения проверки
+                int newFuelkolvo = FuelKolvo - 20;
+                if (newFuelkolvo == 0) {players.inventory.remove("Fuel");}
+                else {players.inventory.put("Fuel", newFuelkolvo );}
                 players.rez++; // увеличение рейтинга на 1 пункт для совершенное действие
                 int newGolod = players.getGolod() - 1; // уменшение уровня голода на 1 пункт за совершенное действие 
                 players.setGolod((byte) newGolod);
