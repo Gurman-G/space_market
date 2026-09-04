@@ -1,4 +1,7 @@
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -284,22 +287,52 @@ public class space_market {
         String kolvoYad = "Циановодород, Синиальная кислота, Метилцианид и т.д";
         Titan planetTitan = new Titan(namePlanet, kaf, nal, kor, kolvoYad, new ArrayList<>(), new ArrayList<>(), SeelGoods, BuyGoods);
 
-        // создания игрока и введение его в курс дела
-        System.out.println("Добро подаловать в игру Space market, где можно путишествовать по планетам, покупать и продавать товары");
-        System.out.println("Твоя главная цель, найти артефакт и привести его на землю");
-        System.out.println();
-        System.out.print("Введи имя своего персонажа: ");
-        // создаем инвентарь куда будет довлять твоары и убирать их в случае продажи, ключь - навзание товара, значение - его колличество
-        Map<String, Integer> inventory = new HashMap<>(); // ключь - навзание товара, значение - его колличество
-        String PLANET = "beginning"; // переменная определения на какой планете игрок
-        String name = scan.nextLine(); // пользователь вводит имя своего персонажа
-        double money = 100; 
-        byte golod = 11; 
-        double jajda = 16;
-        int rez = 0; // счетчик для отслеживания рейтинга, чем меньше было действий для достижения цели тем ты крут
+        boolean save = false;
+        player players = null;
+        Map<String, Integer> inventory = null; // Объявляем ДО if
+        String PLANET = "beginning";           // Объявляем ДО if
         boolean life = true; // создание переменной определяющей жив игрок или нет
-        player players = new player(name, rez, money, golod, jajda, life);
-        
+        // меню загрузи-новой игры 
+        System.out.println("1. Загрузить игру ");
+        System.out.println("2. Новая игра");
+        // обработка ошибок ввода
+        boolean proverka = false;
+        int otvetPolz = 0;
+        while (!proverka) {
+            try {
+                otvetPolz = scan.nextInt();
+                scan.nextLine();
+                if (otvetPolz == 1 || otvetPolz == 2) {proverka = true;}
+                else {
+                    System.out.println(); 
+                    System.out.println("Нужно выбрать меню введя цфру 1 или 2");
+                System.out.println();}
+            }
+            catch (Exception error) {
+                System.out.println();
+                System.out.println("Нужно выбрать пункт меню введя цыфру 1 или 2 а ты ввел буквы, повтори попытку ");
+                System.out.println();
+            }
+        }
+        int otvet = otvetPolz; // получения выбора меню от пользователя после обработки ошибок
+        if (otvet == 1) {loadGame();}
+        else if (otvet == 2) { // выбор создания новой игры 
+        // создания игрока и введение его в курс дела
+            System.out.println("Добро подаловать в игру Space market, где можно путишествовать по планетам, покупать и продавать товары");
+            System.out.println("Твоя главная цель, найти артефакт и привести его на землю");
+            System.out.println();
+            System.out.print("Введи имя своего персонажа: ");
+            // создаем инвентарь куда будет довлять твоары и убирать их в случае продажи, ключь - навзание товара, значение - его колличество
+            //Map<String, Integer> inventory = new HashMap<>(); // ключь - навзание товара, значение - его колличество
+            // String PLANET = "beginning"; // переменная определения на какой планете игрок
+            String name = scan.nextLine(); // пользователь вводит имя своего персонажа
+            double money = 100; 
+            byte golod = 11; 
+            double jajda = 16;
+            int rez = 0; // счетчик для отслеживания рейтинга, чем меньше было действий для достижения цели тем ты крут
+            life = true; // добавление переменной определяющей жив игрок или нет
+            players = new player(name, rez, money, golod, jajda, life);
+        }
         // начало цикла игры 
         while (true) {
             if (!players.life) {return;}
@@ -376,7 +409,7 @@ public class space_market {
             boolean exit = false;
 
             // создания переменной menu для switch на основе модуля вывода меню
-            int menu = menu(scan, players, planetMars);
+            int menu = menu(scan, players, currentPlanet);
             switch (menu) {
                 case 1: // пользователь выбрал пункт покупка-продажа
                     if (exit) {System.out.println();break;} // определине статуса переменой выхода из switch в начало основного цикла while boolean exit снова сбрасывается 
@@ -402,9 +435,40 @@ public class space_market {
                     if (exit) {System.out.println();break;}  // вывод модуля выхода в основное меню
                     PLANET = perelet(scan, players, currentPlanet); System.out.println(); 
                     break; // вывод выбора планеты перелета
-                case 4: // если игкрок на титане то открываеться доступ к 4 пунтку основного меню
+                case 4: // сохранение текущей игры
+                    saveGame(players, PLANET);
+                    System.out.println("Точно хотите выйти из игры, или просто сохраняем?");
+                    System.out.println("1. Выйти из игры");
+                    System.out.println("2. Продолжить игру");
+                    // обработка ошибок ввода
+                    boolean proverkaExit = false;
+                    int otvetExit = 0;
+                    while (!proverkaExit) {
+                        try {
+                            otvetExit = scan.nextInt();
+                            if (otvetExit == 1 || otvetExit == 2) {proverkaExit = true;}
+                            else {
+                                System.out.println();
+                                System.out.println("Нужно ввести цифру из пункта меню, тоесть 1 или 2");
+                                System.out.println();
+                            }
+                        }
+                        catch (Exception error) {
+                            System.out.println();
+                            System.out.println("Ошибка, введены буквы а не цифры, повторите попытку еще раз ");
+                        }
+                    }
+                    int otvetItog = otvetExit; // получение ответа от пользователя 
+                    if (otvetItog == 1) {
+                        System.out.println();
+                        System.out.println("До скорой встречи");
+                        System.out.println(); return;
+                    }
+                    else if (otvetItog == 2) {System.out.println();}
+                    break;
+                case 5: // если игкрок на титане то открываеться доступ к 4 пунтку основного меню
                     if(!currentPlanet.namePlanet.equals("Titan")) {// доп. проверка на то что если игрок без увиденного пункта меню введет цифру 4
-                        System.out.println("На ходясь на планете: " + currentPlanet.namePlanet + " Такого пунткта меню нет!");
+                        System.out.println("Находясь на планете: " + currentPlanet.namePlanet + " Такого пунткта меню нет!");
                         break;} // выход в основное меню если игрок не на Титане 
                     else {Battle(scan, players);}
                     break;
@@ -450,6 +514,48 @@ public class space_market {
             }
         }
     }
+    // МЕТОД ЗАГРУЗКИ СОХРАНЕНИЯ 
+    public static player loadGame() {
+    try (BufferedReader reader = new BufferedReader(new FileReader("Save.txt"))) {
+        // Читаем в том же порядке, что и сохраняли
+        String name = reader.readLine();
+        if (name == null) {
+            System.out.println("Сохранение пустое.");
+            return null;
+        }
+
+        byte golod = Byte.parseByte(reader.readLine());
+        double jajda = Double.parseDouble(reader.readLine());
+        int rez = Integer.parseInt(reader.readLine());
+        double money = Double.parseDouble(reader.readLine());
+        String currentPlanet = reader.readLine();
+
+        // Создаём игрока (жизнь = true по умолчанию)
+        player loadedPlayer = new player(name, rez, money, golod, jajda, true);
+
+        // Читаем инвентарь (построчно, пока есть строки)
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split(":");
+            if (parts.length == 2) {
+                loadedPlayer.inventory.put(parts[0], Integer.parseInt(parts[1]));
+            }
+        }
+
+        System.out.println("✅ Игра загружена! Привет, " + name + "!");
+        return loadedPlayer;
+
+    } catch (FileNotFoundException e) {
+        System.out.println("Сохранение не найдено. Начинаем новую игру.");
+        return null;
+    } catch (IOException e) {
+        System.out.println("Ошибка загрузки игры!");
+        return null;
+    } catch (NumberFormatException e) {
+        System.out.println("Ошибка: файл сохранения повреждён!");
+        return null;
+    }
+}
     // МЕТОД dev1 CASE 1 ДЛЯ ОСНОВНОГО МЕНЮ 
     public static int dev1 (Scanner scan, Map<String, Integer> inventory, player players, planet currPlanet) {
         System.out.println();
@@ -531,8 +637,9 @@ public class space_market {
         System.out.println("1. Покупка-продажа");
         System.out.println("2. Поесть-попить");
         System.out.println("3. В путь");
+        System.out.println("4 Сохранить и выйти");
         if (currePlanet.namePlanet.equals("Titan")){ // проверка на то что игрок сейчас на Титане чтобы чтобы добавить вывод 4 пункта меню
-            System.out.println("4. Сразиться с чудовищами");
+            System.out.println("5. Сразиться с чудовищами");
         }
         System.out.println();
         byte viborScan = 0;
@@ -541,11 +648,11 @@ public class space_market {
             try { // создание исключени
                 System.out.print("Выберите действие из пункта меню: ");
                 viborScan = scan.nextByte();// получение данных от пользвателя 
-                if (viborScan >= 1 && viborScan <= 4) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
+                if (viborScan >= 1 && viborScan <= 5) {proverka = true;} // проверка веденного выбора пункта меню, для последубщего ее присвоения для основного пункта меню
                 else {
                     if (currePlanet.namePlanet.equals("Earch") || currePlanet.namePlanet.equals("Mars")) {
-                    System.out.println("Введите число как в меню 1, 2 или 3");
-                    } else {System.out.println("Введите число как в меню 1, 2, 3 или 4");}
+                    System.out.println("Введите число как в меню 1, 2, 3, 4");
+                    } else {System.out.println("Введите число как в меню 1, 2, 3, 4 или 5");}
                 }
             } catch (Exception error) { // вывод текста при проваливании программы, переводит в начало цикла (повторный ввод)
                 System.out.println();
@@ -802,7 +909,7 @@ public class space_market {
             System.out.println("Полет запрещен!"); return currentPlanet.namePlanet; // действие в случае недостаточного колличества топлива для перелета
         }
         int FuelKolvo = players.inventory.get("Fuel");
-        if(!players.inventory.containsKey("Fuel") || FuelKolvo <= 20 ) {
+        if(!players.inventory.containsKey("Fuel") || FuelKolvo < 19 ) {
             System.out.println("Недостаточно топлива, должно быть минимум 20 единииц."); 
             System.out.println("Полет запрещен!"); return currentPlanet.namePlanet; // действие в случае недостаточного колличества топлива для перелета
         }
@@ -838,7 +945,7 @@ public class space_market {
         if (currentPlanet.namePlanet.equals("Mars")) { // проверка на то что текущая планета на которой находиться игрок это марс
             System.out.println("Сочувствую что ты не нашел артефакт на Марсе, попытай удачу на Титане.");
             System.out.println("Но помни, там тебе нужен продвинутый скафандр с отдельными для них балонами с кислоролом.");
-            System.out.println("И не забудь запастись оружием, планета кишит монстрами.");
+            System.out.println("И не забудь запастись оружием и отпугивателем, планета кишит монстрами.");
             System.out.println("Если у тебя нет нужных вещей в инвентаре и ты не видел их на рынке марса, советую вернуться на змелю");
             System.out.println("Если выбираешь планету Титан напиши 'Titan' если хочешь вернуться на Землю напиши 'Earch'");
             System.out.println("Если хочешь выйти в основное меню напиши 'Exit'");
@@ -918,6 +1025,7 @@ public class space_market {
     }
     // МЕТОД ВЗАИМОДЕЙСТВИЯ С ЧУДОВИЩАМИ
     public static void Battle(Scanner scan, player players) {
+        scan.nextLine();
         inventary(players);
         System.out.println("Итак ты решил помериться силами с чудовищами");
         System.out.println("Похвально");
