@@ -542,7 +542,7 @@ public class space_market {
             }
         }
 
-        System.out.println("✅ Игра загружена! Привет, " + name + "!");
+        System.out.println("Игра загружена! Привет, " + name + "!");
         return loadedPlayer;
 
     } catch (FileNotFoundException e) {
